@@ -49,27 +49,27 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        if (appstate.IsLoggedIn)
-        {
-            var apiClient = RestService.For<IRestfulApi>(httpClienthelper.HttpClient);
-            var response = await apiClient.GetAllFaqCategory(List_Faq);
+        // if (appstate.IsLoggedIn)
+        // {
+        //     var apiClient = RestService.For<IRestfulApi>(httpClienthelper.HttpClient);
+        //     var response = await apiClient.GetAllFaqCategory(List_Faq);
 
-            if (response.Data == null)
-            {
-                ToastService.ShowToast("Failure", "API response is null", "e-toast-danger");
+        //     if (response.Data == null)
+        //     {
+        //         ToastService.ShowToast("Failure", "API response is null", "e-toast-danger");
 
-                return;
-            }
+        //         return;
+        //     }
 
-            if (!response.Data.Success)
-            {
-                ToastService.ShowToast("Failure", "Success is false", "e-toast-danger");
+        //     if (!response.Data.Success)
+        //     {
+        //         ToastService.ShowToast("Failure", "Success is false", "e-toast-danger");
 
-                return;
-            }
+        //         return;
+        //     }
 
-            Faqs = response.Data.Data.DataList;
-        }
+        //     Faqs = response.Data.Data.DataList;
+        // }
     }
 
  

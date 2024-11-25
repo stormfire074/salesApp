@@ -255,19 +255,19 @@ CssClass="custom-sidebar">
     private async void HandleLogout()
     {
         var apiClient = RestService.For<IRestfulApi>(httpClienthelper.HttpClient);
-        var items = await apiClient.Logout();
-        if (items.Data)
-        {
-            appstate.IsLoggedIn = false;
-            appstate.Token = null;
-            Console.WriteLine("User logged out");
-            NavigationManager.NavigateTo("/login");
-            StateHasChanged();
-        }
-        else
-        {
-            Console.WriteLine("Unable to logout user");
-        }
+        // var items = await apiClient.Logout();
+        // if (items.Data)
+        // {
+        //     appstate.IsLoggedIn = false;
+        //     appstate.Token = null;
+        //     Console.WriteLine("User logged out");
+        //     NavigationManager.NavigateTo("/login");
+        //     StateHasChanged();
+        // }
+        // else
+        // {
+        //     Console.WriteLine("Unable to logout user");
+        // }
     }
     private async void NavigateBackward()
     {

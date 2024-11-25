@@ -4,9 +4,11 @@
 @using SalesApp.Shared.Layout
 @using Syncfusion.Blazor.Buttons
 @using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.DropDowns
 @using Microsoft.AspNetCore.Components.Forms
 @using SalesApp.Shared.APIs.Contracts
 @using SalesApp.Shared.APIs.Static
+
 <SfToast ID="toast_default" @ref="ToastObj" Content="@ToastContent" Timeout="5000" Icon="e-meeting">
     <ToastPosition X="@ToastPosition"></ToastPosition>
 </SfToast>
@@ -37,9 +39,17 @@
                             <i class="@passwordToggleIcon"></i>
                         </button>
                     </div>
+
+                    <!-- ComboBox Field -->
+
                 </div>
-
-
+                <div class="combo-box-container">
+                    <SfComboBox TValue="string" CssClass="rounded-input" TItem="SAPDatabasesModel" Placeholder="Select Database"
+                    DataSource="@comboBoxItems"
+                    @bind-Value="selectedDBKey">
+                        <ComboBoxFieldSettings Text="DBName" Value="DBKey" />
+                    </SfComboBox>
+                </div>
                 <!-- Remember Me and Forgot Password -->
                 <div class="extras">
                     <SfCheckBox Label="Remember me" CssClass="checkbox e-custom" @bind-Checked="isRememberMe" />
@@ -49,7 +59,6 @@
                 <!-- Login and Agent Buttons -->
                 <div class="buttons">
                     <SfButton CssClass="login-button" IsPrimary="true" Content="Log In" Disabled="@isLoading" />
-                    <SfButton CssClass="agent-button" IsPrimary="false" Content="Sign In as Agent" Disabled="@isLoading" OnClick="SetAgentLogin" />
                 </div>
 
                 <!-- Sign Up Link -->
@@ -57,11 +66,10 @@
                     Don't have an account? <a href="#" class="signup-link">Sign Up</a>
                 </p>
             </EditForm>
-
         </div>
-
     </div>
 </div>
+
 <style>
 
     /* Global Styling to Apply Poppins Everywhere */
@@ -73,6 +81,13 @@
     }
 
     .password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    }
+
+    .combo-box-container {
+    margin-top: 20px;
     position: relative;
     display: flex;
     align-items: center;
@@ -232,12 +247,11 @@
 
     /* Responsive Styling */
     @@media screen and (max-width: 768px) {
-    .login-container{
-    margin-top:20%;
+    .login-container {
+    margin-top: 20%;
     }
-    .login-page
 
-    {
+    .login-page {
     flex-direction: column; /* Stack branding and login form vertically */
     height: auto;
     }
@@ -260,7 +274,6 @@
     }
 
     .login-form {
-
     padding: 2rem; /* Reduce padding on smaller screens */
     }
 
@@ -297,7 +310,6 @@
     font-size: 14px !important; /* Smaller font size for buttons */
     padding: 0.6rem; /* Reduce button padding */
     }
-
     }
 
     @@media screen and (max-width: 480px) {
@@ -312,14 +324,12 @@
     .login-form .subtext {
     text-align: center;
     }
-    .branding .logo
 
-    {
+    .branding .logo {
     max-width: 150px; /* Even smaller logo for extra small screens */
     }
 
     .branding .slogan {
-
     font-size: 14px; /* Smaller slogan text */
     }
 
@@ -350,7 +360,6 @@
     .signup .signup-link {
     font-size: 14px;
     }
-
     }
 </style>
 
@@ -362,29 +371,60 @@
     SfTextBox TextBoxObj { get; set; }
     SfTextBox PasswordObj { get; set; }
     SfToast ToastObj;
-
-
-    private LoginModel loginModel = new LoginModel() { Username = "muzammil.irfan@axelliant.com", Password = "P@ssw0rd" };
+    private List<SAPDatabasesModel> comboBoxItems = new(); // Updated list type to match the model
+    private string selectedDBKey; // To bind selected DBKey
+    private ComboBoxFieldSettings comboBoxFields = new ComboBoxFieldSettings
+        {
+            Text = "DBName", // Display the DBName property
+            Value = "DBKey"  // Bind to the DBKey property
+        };
+    private LoginModel loginModel = new LoginModel() { Username = "KALE", Password = "1234" };
     private bool isRememberMe = false;
     private bool isAgentLogin = false;
     private bool isLoading = false;
+
+    private string selectedOption;
+
+    private async Task FetchComboBoxData()
+    {
+        try
+        {
+            var apiClient = RestService.For<IRestfulApi>(httpClienthelper.HttpClient);
+            var response = await apiClient.GetAllSapDatabases(new ListRequest<SAPDatabasesModel>());
+
+            if (response != null && response.Entity != null)
+            {
+                comboBoxItems = response.Entity.ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowToast("Error", "Failed to fetch combo box data", "e-toast-danger");
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await FetchComboBoxData();
+    }
+
     private async void AddEyeIcon()
     {
         if (PasswordObj != null)
         {
-            //Add icon to the TextBox
+            // Add icon to the TextBox
             await PasswordObj.AddIconAsync("append", "fa fa-eye-slash input-icon");
         }
     }
+
     private async void AddIcon()
     {
         if (TextBoxObj != null)
         {
-            //Add icon to the TextBox
+            // Add icon to the TextBox
             await TextBoxObj.AddIconAsync("prepend", "fa fa-envelope input-icon");
         }
     }
-
 
     private void TogglePasswordVisibility()
     {
@@ -405,7 +445,8 @@
         isAgentLogin = true;
     }
 
-    private TokenRequest token = new();
+    private Request<LoginModel> request = new();
+    private LoginModel login = new ();
 
     private async Task HandleLogin()
     {
@@ -414,44 +455,41 @@
             isLoading = true;
 
             var apiClient = RestService.For<IRestfulApi>(httpClienthelper.HttpClient);
-            token.Username = loginModel.Username;
-            token.Password = loginModel.Password;
-            var items = await apiClient.Login(token);
 
-            if (items.Data.Success)
-            {
-
-                // Update AppState
+            dynamic items = await apiClient.Login(new { Username = loginModel.Username, Password = loginModel.Password, CompanyDatabase = selectedDBKey });
+            if (items.ToString()=="{}"){
                 appstate.IsLoggedIn = true;
-                appstate.Token = items.Data.Data;
-
-                // Show success toast
+                appstate.DatabaseName = comboBoxItems.FirstOrDefault(x=>x.DBKey==selectedDBKey).DBName;
+                appstate.DatabaseKey = selectedDBKey;
+                appstate.Username = loginModel.Username;
+                appstate.httpScope = httpClienthelper.HttpClient;
                 ToastService.ShowToast("Success", "Login Succesful!", "e-success");
-
-                // Navigate to dashboard
                 NavigationManager.NavigateTo("/dashboard");
+
             }
-            else
-            {
+            else{
                 ToastService.ShowToast("Failure", "Login Failed", "e-toast-danger");
-
-
             }
+            // if (items.Data.Success)
+            // {
+            //     appstate.IsLoggedIn = true;
+            //     appstate.Token = items.Data.Data;
+
+            //     ToastService.ShowToast("Success", "Login Succesful!", "e-success");
+            //     NavigationManager.NavigateTo("/dashboard");
+            // }
+            // else
+            // {
+            //     ToastService.ShowToast("Failure", "Login Failed", "e-toast-danger");
+            // }
 
             isLoading = false;
         }
-        catch(Exception ex){
-
+        catch (Exception ex)
+        {
+            ToastService.ShowToast("Error", "An error occurred during login", "e-toast-danger");
         }
-        
-
-     
     }
 
-
-    public class LoginModel
-    {
-        public string Username { get; set; }
-        public string Password { get; set; }
-    }
+    
 }

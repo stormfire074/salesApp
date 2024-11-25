@@ -85,24 +85,24 @@
     {
         if (appstate.IsLoggedIn)
         {
-            var apiClient = RestService.For<IRestfulApi>(httpClienthelper.HttpClient);
-            var response = await apiClient.GetSingleFaq(Guid.Parse(Id));
-            APIs.DTOs.AddEditFaq data = new();
-            if (response?.Data?.Success == true)
-            {
-                data = response.Data.Data;
-                currentFaq = new VW_Faq
-                {
-                    Id = Guid.Parse(Id),
-                    Question = data.Question,
-                    Answer = data.Answer,
-                    Status = data.Status
-                };
-            }
-            else
-            {
-                ToastService.ShowToast("Failure", "Unable to load FAQs", "e-toast-danger");
-            }
+            // var apiClient = RestService.For<IRestfulApi>(httpClienthelper.HttpClient);
+            // var response = await apiClient.GetSingleFaq(Guid.Parse(Id));
+            // APIs.DTOs.AddEditFaq data = new();
+            // if (response?.Data?.Success == true)
+            // {
+            //     data = response.Data.Data;
+            //     currentFaq = new VW_Faq
+            //     {
+            //         Id = Guid.Parse(Id),
+            //         Question = data.Question,
+            //         Answer = data.Answer,
+            //         Status = data.Status
+            //     };
+            // }
+            // else
+            // {
+            //     ToastService.ShowToast("Failure", "Unable to load FAQs", "e-toast-danger");
+            // }
         }
     }
 

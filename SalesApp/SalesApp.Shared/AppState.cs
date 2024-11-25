@@ -1,9 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
-using SalesApp.Shared.APIs.DTOs;
-using System;
-using System.Threading.Tasks;
-
-namespace SalesApp.Shared
+﻿namespace SalesApp.Shared
 {
     public class AppState
     {
@@ -13,7 +8,9 @@ namespace SalesApp.Shared
         }
 
         public bool IsLoggedIn { get; set; }
-        public TokenResponse Token { get; set; }
-      
+        public string DatabaseName { get; set; }
+        public string DatabaseKey { get; set; }
+        public string Username { get; set; }
+        public HttpClient httpScope { get; set; }
     }
 }
