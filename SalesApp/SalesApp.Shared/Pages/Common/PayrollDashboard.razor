@@ -1,0 +1,159 @@
+﻿@page "/dashboard/payrolldashboard"
+@using Syncfusion.Blazor.Layouts
+
+<div class="control-section" id="target">
+    <SfDashboardLayout ShowGridLines="false" @ref="dashboardObject" Columns="@(IsMobile ? 2 : 12)" AllowResizing="true"
+                       CellSpacing="@(IsMobile ? new double[] { 20, 20 } : new double[] { 10, 10 })">
+        <DashboardLayoutPanels>
+            <!-- Total Employees -->
+            <DashboardLayoutPanel Id="totalEmployees" Column="@(IsMobile ? 0 : 0)" Row="0" SizeX="@(IsMobile ? 1 : 2)" SizeY="1">
+                <HeaderTemplate>Total Employees</HeaderTemplate>
+                <ContentTemplate>
+                    <div class="panel-content">
+                        <p class="metric-value">20</p>
+                    </div>
+                </ContentTemplate>
+            </DashboardLayoutPanel>
+
+            <!-- Total Salary Debited -->
+            <DashboardLayoutPanel Id="totalSalary" Column="@(IsMobile ? 1 : 2)" Row="@(IsMobile ? 0 : 0)" SizeX="@(IsMobile ? 1 : 2)" SizeY="1">
+                <HeaderTemplate>Total Salary Debited</HeaderTemplate>
+                <ContentTemplate>
+                    <div class="panel-content">
+                        <p class="metric-value">$38,060</p>
+                    </div>
+                </ContentTemplate>
+            </DashboardLayoutPanel>
+
+            <!-- Monthly Payroll Cost -->
+            <DashboardLayoutPanel Id="monthlyPayroll" Column="@(IsMobile ? 0 : 4)" Row="@(IsMobile ? 1 : 0)" SizeX="@(IsMobile ? 1 : 2)" SizeY="1">
+                <HeaderTemplate>Monthly Payroll Cost</HeaderTemplate>
+                <ContentTemplate>
+                    <div class="panel-content">
+                        <p class="metric-value">$10,560</p>
+                    </div>
+                </ContentTemplate>
+            </DashboardLayoutPanel>
+
+            <!-- Overtime Hours -->
+            <DashboardLayoutPanel Id="overtimeHours" Column="@(IsMobile ? 1 : 6)" Row="@(IsMobile ? 1 : 0)" SizeX="@(IsMobile ? 1 : 2)" SizeY="1">
+                <HeaderTemplate>Overtime Hours</HeaderTemplate>
+                <ContentTemplate>
+                    <div class="panel-content">
+                        <p class="metric-value">45 hrs</p>
+                    </div>
+                </ContentTemplate>
+            </DashboardLayoutPanel>
+
+            <!-- Taxes Withheld -->
+            <DashboardLayoutPanel Id="taxesWithheld" Column="@(IsMobile ? 0 : 8)" Row="@(IsMobile ? 2 : 0)" SizeX="@(IsMobile ? 1 : 2)" SizeY="1">
+                <HeaderTemplate>Taxes Withheld</HeaderTemplate>
+                <ContentTemplate>
+                    <div class="panel-content">
+                        <p class="metric-value">$5,000</p>
+                    </div>
+                </ContentTemplate>
+            </DashboardLayoutPanel>
+
+            <!-- Pending Payroll Approvals -->
+            <DashboardLayoutPanel Id="pendingApprovals" Column="@(IsMobile ? 1 : 10)" Row="@(IsMobile ? 2 : 0)" SizeX="@(IsMobile ? 1 : 2)" SizeY="1">
+                <HeaderTemplate>Pending Payroll Approvals</HeaderTemplate>
+                <ContentTemplate>
+                    <div class="panel-content">
+                        <p class="metric-value">3</p>
+                    </div>
+                </ContentTemplate>
+            </DashboardLayoutPanel>
+
+            <!-- Employee Turnover Rate -->
+            <DashboardLayoutPanel Id="turnoverRate" Column="@(IsMobile ? 0 : 0)" Row="@(IsMobile ? 3 : 1)" SizeX="@(IsMobile ? 1 : 2)" SizeY="1">
+                <HeaderTemplate>Employee Turnover Rate</HeaderTemplate>
+                <ContentTemplate>
+                    <div class="panel-content">
+                        <p class="metric-value">5%</p>
+                    </div>
+                </ContentTemplate>
+            </DashboardLayoutPanel>
+
+            <!-- Active Employees -->
+            <DashboardLayoutPanel Id="activeEmployees" Column="@(IsMobile ? 1 : 2)" Row="@(IsMobile ? 3 : 1)" SizeX="@(IsMobile ? 1 : 2)" SizeY="1">
+                <HeaderTemplate>Active Employees</HeaderTemplate>
+                <ContentTemplate>
+                    <div class="panel-content">
+                        <p class="metric-value">18</p>
+                    </div>
+                </ContentTemplate>
+            </DashboardLayoutPanel>
+        </DashboardLayoutPanels>
+    </SfDashboardLayout>
+</div>
+
+<style>
+    .e-dashboardlayout {
+        z-index: 500;
+        padding: 20px;
+    }
+
+    .e-panel-header{
+        text-align: center;
+    }
+    .panel-content {
+        text-align: center;
+        font-size: 50px;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.61);
+    }
+
+    @@media (max-width: 768px) {
+        .e-dashboardlayout
+        {
+             padding: 20px;
+        }
+
+    .panel-content {
+            font-size: 60px;
+            text-align: center;
+            margin-top:30%;
+        }
+
+    }
+</style>
+
+@code {
+    SfDashboardLayout dashboardObject;
+    private bool IsMobile { get; set; } = false;
+    private int windowWidth;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateScreenWidth();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Register the resize event listener
+            await JSRuntime.InvokeVoidAsync("addResizeListener", DotNetObjectReference.Create(this));
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnResize()
+    {
+        await UpdateScreenWidth();
+        StateHasChanged();
+    }
+
+    private async Task UpdateScreenWidth()
+    {
+        windowWidth = await JSRuntime.InvokeAsync<int>("getScreenWidth");
+        IsMobile = windowWidth <= 768;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        // Unregister the resize event listener
+        await JSRuntime.InvokeVoidAsync("removeResizeListener");
+    }
+}

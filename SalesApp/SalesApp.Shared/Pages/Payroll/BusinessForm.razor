@@ -1,0 +1,200 @@
+﻿@page "/businessform"
+
+<div class="form-container">
+    <!-- Static Form -->
+    <SfDataForm ColumnSpacing="20px" ColumnCount="3" ID="MyForm" Model="@FieldTypeModel" Width="95%">
+        <FormValidator>
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+        </FormValidator>
+        <FormItems>
+            <FormAutoGenerateItems />
+        </FormItems>
+        <FormItem>
+            <FormItem ColumnSpan="2" Field="@nameof(FieldTypeModel.StringField)" Placeholder="Please enter the value">
+            </FormItem>
+        </FormItem>
+        <FormButtons>
+            <div class="button-group" role="group" aria-label="Action Buttons">
+                <SfButton CssClass="btn btn-success" OnClick="HandleSave">
+                    <i class="fa fa-save"></i> Save
+                </SfButton>
+                <SfButton CssClass="btn btn-danger" OnClick="HandleDelete">
+                    <i class="fa fa-trash"></i> Delete
+                </SfButton>
+                @if (AdditionalButtons != null)
+                    {
+                        @foreach (var button in AdditionalButtons)
+                        {
+                            <SfButton CssClass="btn btn-secondary" OnClick="button.OnClick">
+                                <i class="fa fa-cogs"></i> @button.Label
+                            </SfButton>
+                        }
+                    }
+                </div>
+            </FormButtons>
+
+        </SfDataForm>
+    </div>
+
+    <style>
+        /* Form Container */
+        .form-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            width: 100%;
+            box-sizing: border-box; /* Include padding in width calculation */
+            min-height: 100vh; /* Ensures it fills the screen height */
+        }
+
+        /* Form Styling */
+        #MyForm {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            width: 95%; /* Take almost full width */
+            max-width: 100%; /* Limit maximum width for larger screens */
+            box-sizing: border-box;
+        }
+
+        /* Button Group */
+        .button-group {
+            display: flex;
+            flex-wrap: wrap; /* Allow buttons to wrap */
+            gap: 10px; /* Space between buttons */
+            justify-content: flex-end; /* Align buttons to the right */
+            margin-top: 20px; /* Add spacing above buttons */
+            padding: 10px;
+        }
+
+        /* Button Styling */
+        .toolbar-button, .e-success, .e-danger {
+            font-size: 14px;
+            padding: 10px 20px;
+            border-radius: 0px;
+            border: none; /* Remove border */
+            color: #fff; /* White text color */
+            cursor: pointer;
+            border: 1px solid #ddd; /* Subtle border around the group */
+
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #007bff; /* Default button color */
+            flex: 1 1 auto; /* Allow buttons to grow and shrink */
+        }
+
+            /* Button Hover State */
+            .toolbar-button:hover, .e-success:hover, .e-danger:hover {
+                background-color: #0056b3; /* Darker shade on hover */
+            }
+
+        /* Icon Styling */
+        .fa {
+            font-size: 16px; /* Adjust icon size */
+            margin-right: 8px; /* Space between icon and text */
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 768px) {
+            .button-group
+
+        {
+            justify-content: center; /* Center align buttons on small screens */
+        }
+
+        .toolbar-button, .e-success, .e-danger {
+            flex: 1 1 100%; /* Stack buttons on smaller screens */
+        }
+
+        }
+    </style>
+
+    @code {
+    public enum Countries
+    {
+        Australia,
+        Bermuda,
+        Canada
+    }
+
+    public class FieldTypes
+    {
+        [Required(ErrorMessage = "Please enter a value for the IntField")]
+        [Display(Name = "Integer field")]
+        public int? IntField { get; set; }
+
+        [Required(ErrorMessage = "Please enter a value for the StringField")]
+        [Display(Name = "String field")]
+        public string StringField { get; set; }
+
+        [Required(ErrorMessage = "Please enter a value for the StringField")]
+        [Display(Name = "Enumeration Field")]
+        public Countries EnumField { get; set; }
+
+        [Required(ErrorMessage = "Please select a date for the DateTimeField")]
+        [Display(Name = "DateTime field")]
+        public DateTime? DateTimeField { get; set; }
+
+        [Required(ErrorMessage = "Please select a date for the DateOnlyField")]
+        [Display(Name = "DateOnly field")]
+        public DateOnly? DateOnlyField { get; set; }
+
+        [Required(ErrorMessage = "Please select a time for the TimeOnlyField")]
+        [Display(Name = "TimeOnly field")]
+        public TimeOnly? TimeOnlyField { get; set; }
+
+        [Required(ErrorMessage = "Please check the BoolField")]
+        [Range(typeof(bool), "true", "true", ErrorMessage = "The BoolField must be checked")]
+        [Display(Name = "Boolean field")]
+        public bool BoolField { get; set; }
+    }
+
+    private FieldTypes FieldTypeModel = new FieldTypes();
+
+    private List<DynamicButton> AdditionalButtons { get; set; }
+
+    protected override void OnInitialized()
+    {
+        // Define additional buttons
+        AdditionalButtons = new List<DynamicButton>
+        {
+            new DynamicButton
+            {
+                Label = "Test DI API Connection",
+                OnClick = EventCallback.Factory.Create(this, TestDIAPIConnection)
+            },
+            new DynamicButton
+            {
+                Label = "Test SQL Connection",
+                OnClick = EventCallback.Factory.Create(this, TestSQLConnection)
+            }
+        };
+    }
+
+    private void HandleSave()
+    {
+        ToastService.ShowToast("Success", "Operation completed successfully!", "e-success");
+    }
+
+    private void HandleDelete()
+    {
+        Console.WriteLine("Delete button clicked!");
+    }
+
+    private void TestDIAPIConnection()
+    {
+        Console.WriteLine("Test DI API Connection button clicked!");
+    }
+
+    private void TestSQLConnection()
+    {
+        Console.WriteLine("Test SQL Connection button clicked!");
+    }
+
+    public class DynamicButton
+    {
+        public string Label { get; set; }
+        public EventCallback OnClick { get; set; }
+    }
+}

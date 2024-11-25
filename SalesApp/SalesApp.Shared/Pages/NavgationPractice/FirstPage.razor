@@ -1,0 +1,20 @@
+﻿@page "/faqmaster"
+@inject NavigationManager Navigation
+
+<h3>FAQ Master</h3>
+
+<label for="faqId">Enter FAQ ID:</label>
+<input @bind="faqId" id="faqId" type="text" placeholder="Enter FAQ ID" />
+<button @onclick="NavigateToFaqDetail">View FAQ</button>
+
+@code {
+    private Guid faqId = Guid.NewGuid();
+
+    private void NavigateToFaqDetail()
+    {
+        if (!(Guid.Empty==faqId))
+        {
+            Navigation.NavigateTo($"/faqmasterdata/detail/{faqId.ToString()}");
+        }
+    }
+}

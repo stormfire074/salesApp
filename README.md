@@ -1,1 +1,1 @@
-# salesApp
+# MAUI_ClientSideProjectSetup

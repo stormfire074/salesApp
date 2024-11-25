@@ -1,0 +1,127 @@
+﻿@typeparam T where T : class
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Notifications
+
+<div style="padding: 20px; background-color: #f9f9f9; border-radius: 8px;">
+    <div style="background-color: #00579A; padding: 20px; border-radius: 0px; margin-bottom: 20px;">
+        <h1 style="margin: 0; font-size: 1.5rem; text-align: center; color: White;">@Title</h1>
+    </div>
+    <SfGrid TItem="T" RowHeight="@RowHeight" AllowTextWrap="@AllowTextWrap" AllowResizing="true" PrintMode="PrintMode.AllPages" AllowPaging="true"
+            AllowPdfExport="true" AllowExcelExport="true" AllowReordering="true" GridLines="GridLine.Both"
+            DataSource="@DataSource" AllowSorting="true" AllowFiltering="true"
+            EnableAdaptiveUI="false"
+            Toolbar="@(new List<string> { "Search", "ColumnChooser" })" ShowColumnChooser="true"
+            RowRenderingMode="RowDirection.Vertical" Height="100%" Width="100%" @ref="GridRef">
+
+        <div style="margin: 10px; display: flex; gap: 10px; align-items: center; justify-content:space-between">
+            <div>
+                <span style="font-size: 14px; font-weight: bold;">Export:</span>
+                <SfButton CssClass="e-flat e-success" IconCss="fa fa-file-excel" Content="" @onclick="ExportToExcel"></SfButton>
+                <SfButton CssClass="e-flat e-danger" IconCss="fa fa-file-pdf" Content="" @onclick="ExportToPDF"></SfButton>
+            </div>
+            <SfButton CssClass="e-flat e-primary" IconCss="fa fa-plus" Content="Add" @onclick="HandleAdd"></SfButton>
+        </div>
+
+        <GridPageSettings PageCount="5" PageSizes="true"></GridPageSettings>
+        <GridFilterSettings Type="@Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+
+        <GridColumns>
+            <GridColumn HeaderText="Actions" AutoFit="true" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <SfButton CssClass="e-flat e-primary" IconCss="fa fa-edit" Content="" @onclick="(() => HandleEdit(context as T))"></SfButton>
+                    <SfButton CssClass="e-flat e-danger" IconCss="fa fa-trash" Content="" @onclick="(() => HandleDelete(context as T))"></SfButton>
+                </Template>
+            </GridColumn>
+
+
+            @if (ColumnsTemplate != null)
+            {
+                @ColumnsTemplate(DataSource)
+            }
+        </GridColumns>
+    </SfGrid>
+</div>
+
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = "Grid";
+
+    [Parameter]
+    public EventCallback OnAdd { get; set; }
+
+    [Parameter]
+    public List<T> DataSource { get; set; }
+
+    [Parameter]
+    public EventCallback<T> OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<T> OnDelete { get; set; }
+
+    [Parameter]
+    public RenderFragment<List<T>> ColumnsTemplate { get; set; }
+
+    private SfGrid<T> GridRef;
+    private bool IsAdaptiveUIEnabled => FormFactor.IsAndroid || FormFactor.IsIOS || FormFactor.IsWindows;
+
+    private int RowHeight => IsAdaptiveUIEnabled ? 50 : 30; // Adjust row height for adaptive UI
+    private bool AllowTextWrap => IsAdaptiveUIEnabled;
+
+    public async Task ExportToExcel()
+    {
+        var options = new ExcelExportProperties
+            {
+                FileName = "Export.xlsx"
+            };
+        if (GridRef != null)
+        {
+            await GridRef.ExportToExcelAsync(options);
+        }
+    }
+
+    public async Task ExportToPDF()
+    {
+        if (GridRef != null)
+        {
+            await GridRef.ExportToPdfAsync();
+        }
+    }
+    private async Task HandleEdit(T item)
+    {
+        if (OnEdit.HasDelegate)
+        {
+            await OnEdit.InvokeAsync(item);
+        }
+        else
+        {
+            Console.WriteLine("No OnEdit callback provided.");
+        }
+    }
+
+    private async Task HandleDelete(T item)
+    {
+        if (OnDelete.HasDelegate)
+        {
+            await OnDelete.InvokeAsync(item);
+        }
+        else
+        {
+            Console.WriteLine("No OnDelete callback provided.");
+        }
+    }
+    private async Task HandleAdd()
+    {
+        Console.WriteLine("Add button clicked!");
+
+        if (OnAdd.HasDelegate)
+        {
+            await OnAdd.InvokeAsync();
+        }
+        else
+        {
+            Console.WriteLine("No OnAdd callback provided.");
+        }
+    }
+    
+}

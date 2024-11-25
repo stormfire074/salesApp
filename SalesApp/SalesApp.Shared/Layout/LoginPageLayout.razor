@@ -1,0 +1,39 @@
+﻿@inherits LayoutComponentBase
+<div class="login-layout">
+    @Body
+</div>
+
+<SfToast @ref="Toast" ShowProgressBar="true" Timeout="3000" Width="300px" Height="auto">
+    <ToastPosition Y="Top" X="Right"></ToastPosition>
+</SfToast>
+<style>
+    .login-layout {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        background-color: #f5f5f5;
+    }
+</style>
+@code {
+    private SfToast Toast;
+
+    protected override void OnInitialized()
+    {
+        ToastService.OnShow += ShowToast;
+    }
+
+    private async void ShowToast(string title, string content, string cssClass = "e-toast-success")
+    {
+        await Toast.ShowAsync(new ToastModel
+            {
+                Title = title,
+                Content = content,
+                CssClass = cssClass
+            });
+    }
+
+    public void Dispose()
+    {
+        ToastService.OnShow -= ShowToast;
+    }
+}

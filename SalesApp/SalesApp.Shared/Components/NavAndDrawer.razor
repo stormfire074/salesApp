@@ -1,0 +1,308 @@
+﻿<SfSidebar @bind-IsOpen="isDrawerOpen"
+Type="SidebarType.Push"
+ShowBackdrop="true"
+EnableGestures="true"
+CloseOnDocumentClick="true"
+Width="290px"
+DockSize="80px"
+CssClass="custom-sidebar">
+    <div class="drawer-content">
+        <!-- Drawer Header -->
+        <div class="drawer-header">
+            <span class="menu-item" @onclick="ToggleDrawer">
+                <i class="e-icons fa fa-times"></i>
+            </span>
+        </div>
+
+        <!-- Sidebar Navigation Tree -->
+        <SfTreeView TValue="TreeData" CssClass="custom-treeview">
+            <TreeViewFieldsSettings Id="Id" Text="Text" IconCss="IconCss" ParentID="Pid" HasChildren="HasChild" DataSource="@SidebarData"></TreeViewFieldsSettings>
+            <TreeViewEvents TValue="TreeData" NodeSelected="OnTreeNodeSelected"></TreeViewEvents>
+        </SfTreeView>
+    </div>
+
+    <!-- Sidebar Footer -->
+    <div class="drawer-footer">
+        <LogoComponent Width="130" Height="60" CssClass="drawer-logo-image" Color="black" />
+    </div>
+</SfSidebar>
+
+<!-- Backdrop for Mobile Sidebar -->
+<div class="overlay @(navstate.IsDrawerOpen ? "show" : "")" @onclick="CloseDrawer"></div>
+
+<!-- Navbar -->
+<SfAppBar CssClass="custom-appbar" Mode="AppBarMode.Regular">
+    <div class="navbar-content">
+        <!-- Drawer Toggle Button -->
+        <span class="menu-item" @onclick="ToggleDrawer">
+            <i class="e-icons e-menu"></i>
+        </span>
+        @if (!FormFactor.Web){
+            <!-- Navigation Buttons -->
+            <div class="nav-buttons">
+                <button class="nav-button" @onclick="NavigateBackward" title="Backward">
+                    <i class="fa fa-arrow-left"></i>
+                </button>
+                <button class="nav-button" @onclick="NavigateForward" title="Forward">
+                    <i class="fa fa-arrow-right"></i>
+                </button>
+                <button class="nav-button" @onclick="RefreshPage" title="Refresh">
+                    <i class="fa fa-sync"></i>
+                </button>
+            </div>
+        }
+      
+
+        <!-- Logo -->
+        <div class="navbar-logo">
+            <LogoComponent Width="130" Height="60" CssClass="custom-logo" Color="white" />
+        </div>
+    </div>
+</SfAppBar>
+
+
+<style>
+    .navbar-content {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    }
+
+    .menu-item {
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 10px; /* Space between drawer button and navigation buttons */
+    }
+
+    .nav-buttons {
+    display: flex;
+    align-items: center;
+    margin-right: auto; /* Keeps navigation buttons aligned to the left */
+    }
+
+    .nav-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin: 0 5px; /* Adds spacing between navigation buttons */
+    font-size: 20px;
+    color: white;
+    }
+
+    .nav-button:hover {
+    color: #ccc; /* Changes color on hover for better UX */
+    }
+
+    .navbar-logo {
+    margin-left: auto; /* Pushes the logo to the right side */
+    }
+
+    .custom-sidebar {
+    background-color: #f4f4f4 !important;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, width 0.3s ease;
+    will-change: transform;
+    }
+
+    .drawer-content {
+    flex: 1; /* Ensures content takes the remaining space above the footer */
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    }
+
+    .drawer-header {
+    display: flex;
+    justify-content: flex-end;
+    padding: 15px;
+    }
+
+    .custom-treeview {
+    margin: 10px;
+    font-size: 14px;
+    flex: 1; /* Ensures treeview takes available space */
+    overflow-y: auto; /* Enables scrolling for long menus */
+    }
+
+    .drawer-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    position: absolute; /* Absolute positioning for the footer */
+    bottom: 0; /* Aligns it to the bottom */
+    width: 100%; /* Ensures the footer spans the full sidebar width */
+    }
+
+    .drawer-logo-image {
+    max-width: 100%;
+    height: auto;
+    }
+
+    .custom-appbar {
+    background-color: #00579A !important;
+    color: white !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    }
+
+    .mobile-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+    }
+
+    .mobile-backdrop.show {
+    display: block;
+    }
+
+    .menu-item-nav {
+    display: flex;
+    align-items: flex-start;
+    margin-left: 0;
+    }
+
+    .e-list-icon {
+    color: #00579A !important;
+    }
+
+
+</style>
+
+@code {
+    private bool isDrawerOpen = false;
+
+    // Sidebar data with FontAwesome icons
+    private List<TreeData> SidebarData = new List<TreeData>
+    {
+        new TreeData { Id = "1", Text = "Dashboard", IconCss = "fa fa-home", HasChild = true },
+        new TreeData { Id = "1.1", Pid = "1", Text = "Payroll Dashboard", IconCss = "fa fa-calendar-alt text-success", Url = "/dashboard/payrolldashboard" },
+
+        new TreeData { Id = "2", Text = "Payroll Management", IconCss = "fa fa-calendar-alt", HasChild = true },
+        new TreeData { Id = "2.1", Pid = "2", Text = "Payroll Configuration", IconCss = "fa fa-cogs text-warning", HasChild = true },
+        new TreeData { Id = "2.1.1", Pid = "2.1", Text = "Designations", IconCss = "fa fa-id-badge text-info" },
+        new TreeData { Id = "2.1.2", Pid = "2.1", Text = "Departments", IconCss = "fa fa-building text-secondary" },
+        new TreeData { Id = "2.1.3", Pid = "2.1", Text = "Allowances", IconCss = "fa fa-hand-holding-usd text-success" },
+        new TreeData { Id = "2.1.4", Pid = "2.1", Text = "Deductions", IconCss = "fa fa-minus-circle text-danger" },
+        new TreeData { Id = "2.1.5", Pid = "2.1", Text = "Bonus Policies", IconCss = "fa fa-gift text-warning" },
+        new TreeData { Id = "2.1.6", Pid = "2.1", Text = "Leave Type", IconCss = "fa fa-calendar-alt text-primary" },
+        new TreeData { Id = "2.1.7", Pid = "2.1", Text = "Shifts", IconCss = "fa fa-clock text-muted" },
+
+        new TreeData { Id = "2.2", Pid = "2", Text = "Employee Management", IconCss = "fa fa-users text-primary", HasChild = true },
+        new TreeData { Id = "2.2.1", Pid = "2.2", Text = "Employee Profiles", IconCss = "fa fa-user text-info" },
+        new TreeData { Id = "2.2.2", Pid = "2.2", Text = "Salary Details", IconCss = "fa fa-money-bill text-success" },
+
+        new TreeData { Id = "2.3", Pid = "2", Text = "Payroll Processing", IconCss = "fa fa-cogs text-warning", HasChild = true },
+        new TreeData { Id = "2.3.1", Pid = "2.3", Text = "Salary Calculation", IconCss = "fa fa-calculator text-info" },
+        new TreeData { Id = "2.3.2", Pid = "2.3", Text = "Deductions & Benefits", IconCss = "fa fa-minus text-danger" },
+        new TreeData { Id = "2.3.3", Pid = "2.3", Text = "Payslip Generation", IconCss = "fa fa-file-invoice-dollar text-success" },
+
+        new TreeData { Id = "2.4", Pid = "2", Text = "Tax Management", IconCss = "fa fa-balance-scale text-secondary", HasChild = true },
+        new TreeData { Id = "2.4.1", Pid = "2.4", Text = "Tax Deductions", IconCss = "fa fa-percent text-danger" },
+        new TreeData { Id = "2.4.2", Pid = "2.4", Text = "Compliance Reports", IconCss = "fa fa-file-alt text-muted" },
+
+        new TreeData { Id = "2.5", Pid = "2", Text = "Payment", IconCss = "fa fa-credit-card text-primary", HasChild = true },
+        new TreeData { Id = "2.5.1", Pid = "2.5", Text = "Bank Transfers", IconCss = "fa fa-university text-success" },
+        new TreeData { Id = "2.5.2", Pid = "2.5", Text = "Payment History", IconCss = "fa fa-history text-info" },
+
+        new TreeData { Id = "3", Text = "FAQ Master Data", IconCss = "fa fa-question", HasChild = true },
+        new TreeData { Id = "3.1", Pid = "3", Text = "Categories", IconCss = "fa fa-cogs text-warning" , Url = "/faqmasterdata/categories"},
+        new TreeData { Id = "3.2", Pid = "3", Text = "FAQs", IconCss = "fa fa-question-circle", Url = "/faqmasterdata/faqs"},
+
+
+        new TreeData { Id = "4", Text = "Shadcn", IconCss = "fa fa-cogs" ,Url="/shadcn"},
+        new TreeData { Id = "5", Text = "Settings", IconCss = "fa fa-cogs" },
+        new TreeData { Id = "6", Text = "Logout", IconCss = "fa fa-sign-out-alt", Url = "/login" }
+
+    };
+
+    private void OnTreeNodeSelected(NodeSelectEventArgs args)
+    {
+        var selectedNode = args.NodeData.Text;
+        var selectedItem = SidebarData.FirstOrDefault(item => item.Text == selectedNode);
+
+        if (selectedItem != null && !string.IsNullOrEmpty(selectedItem.Url))
+        {
+            if (selectedItem.Url == "/logout")
+            {
+                HandleLogout(); // Handle logout separately if needed
+            }
+            else
+            {
+                NavigationManager.NavigateTo(selectedItem.Url);
+            }
+        }
+    }
+
+    private async Task ToggleDrawer()
+    {
+        await InvokeAsync(() => isDrawerOpen = !isDrawerOpen);
+    }
+
+    private async Task CloseDrawer()
+    {
+        await InvokeAsync(() => isDrawerOpen = false);
+    }
+
+    private async void HandleLogout()
+    {
+        var apiClient = RestService.For<IRestfulApi>(httpClienthelper.HttpClient);
+        var items = await apiClient.Logout();
+        if (items.Data)
+        {
+            appstate.IsLoggedIn = false;
+            appstate.Token = null;
+            Console.WriteLine("User logged out");
+            NavigationManager.NavigateTo("/login");
+            StateHasChanged();
+        }
+        else
+        {
+            Console.WriteLine("Unable to logout user");
+        }
+    }
+    private async void NavigateBackward()
+    {
+      
+        //var test = await JSRuntime.InvokeAsync<object>("getHistory");
+
+            if (!(appstate.IsLoggedIn && NavigationManager.BaseUri == NavigationManager.Uri))
+            {
+                await JSRuntime.InvokeVoidAsync("history.back");
+
+            }
+        
+      
+    }
+
+    private void NavigateForward()
+    {
+        JSRuntime.InvokeVoidAsync("history.forward");
+    }
+
+    private void RefreshPage()
+    {
+        // Refresh the current page
+        JSRuntime.InvokeVoidAsync("location.reload");
+    }
+
+    
+    class TreeData
+    {
+        public string Id { get; set; }
+        public string Pid { get; set; }
+        public string Text { get; set; } // Display text
+
+        public string Url { get; set; }
+        public string IconCss { get; set; } // FontAwesome icon class
+        public bool HasChild { get; set; }
+    }
+}

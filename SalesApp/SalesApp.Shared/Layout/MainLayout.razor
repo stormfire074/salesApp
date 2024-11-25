@@ -1,0 +1,53 @@
+﻿@using Sysinfocus.AspNetCore.Components
+@inherits LayoutComponentBase
+@inject AppState AppState
+@inject Initialization init
+
+@if (AppState.IsLoggedIn)
+{
+    <ShadcnDrawer></ShadcnDrawer>
+}
+
+<SfToast @ref="Toast" ShowProgressBar="true" Timeout="3000" Width="300px" Height="auto" >
+    <ToastPosition Y="Top" X="Right"></ToastPosition>
+</SfToast>
+
+<div class="page" @onclick="init.HandleMainLayoutClickEvent">
+    <main>
+        @Body
+    </main>
+</div>
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
+@code {
+    private SfToast Toast;
+
+    protected override void OnInitialized()
+    {
+        //base.OnInitialized();
+        ToastService.OnShow += ShowToast;
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // This initializes the theme for the components.
+        // Then you can use init.ToggleTheme() to toggle between light and dark modes.
+        if (firstRender) await init.InitializeTheme();
+    }
+    private async void ShowToast(string title, string content, string cssClass = "e-toast-success")
+    {
+        await Toast.ShowAsync(new ToastModel
+            {
+                Title = title,
+                Content = content,
+                CssClass = cssClass
+            });
+    }
+
+    public void Dispose()
+    {
+        ToastService.OnShow -= ShowToast;
+    }
+}

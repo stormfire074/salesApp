@@ -1,0 +1,154 @@
+@page "/faqmasterdata/faqs"
+@inject HttpClient client
+
+<section class="flex-col">
+    <h2>Data Table</h2>
+    <div class="flex-col">
+        @if (pagedData is not null)
+        {
+            <div style="padding:10px;">
+                <DataTable Items="@pagedData" TItem="VW_Faq" Height="calc(100vh - 190px)" ShowVerticalBorder ShowSelectAll OnSelectAll="x => HandleSelectAll(x)">
+                    <DataColumns>
+                        <DataTableColumn Freeze="0px" Width="40px" Style="z-index: 2">
+                            <Template>
+                                <Checkbox Checked="@context.Selected" OnClick="@(() => HandleSelect(@context))" />
+                            </Template>
+                        </DataTableColumn>
+                        <DataTableColumn Freeze="10px" Property="d => d.Id" Header="Actions" Width="100px" Align="Alignment.Center">
+                            <Template>
+                                <div class="flex ai-c">
+                                    <Icon Name="delete" Tooltip="Delete" Size="18px" Color="red" OnClick="() => HandleDelete(context)" />
+                                    <Icon Name="edit" Tooltip="Edit" Size="18px" Color="royalblue" OnClick="() => NavigateToEditPage(context.Id)" />
+                                </div>
+                            </Template>
+                        </DataTableColumn>
+                        <DataTableColumn Property="d => d.Id" Style="width: fit-content" Header="ID" Align="Alignment.Right" SortOn="@_sortModel" OnSort="HandleSorting" />
+                        <DataTableColumn Property="d => d.Question" Style="width: fit-content" Header="Question" Align="Alignment.Left" SortOn="@_sortModel" OnSort="HandleSorting" />
+                        <DataTableColumn Property="d => d.Answer" Style="width: fit-content" Header="Answer" Align="Alignment.Left" OnSort="HandleSorting" />
+                        <DataTableColumn Property="d => d.IsActive" Header="Status" Align="Alignment.Center">
+                            <Template>
+                                <Switch Checked="@context.IsActive" />
+                            </Template>
+                        </DataTableColumn>
+                    </DataColumns>
+                </DataTable>
+
+                <div class="desktop">
+                    <div class="flex jcsb aic">
+                        <p class="muted">@SelectedRecordCount()</p>
+                        <Pagination State="@paging" OnPageChange="HandlePaging" ActiveType="Sysinfocus.AspNetCore.Components.ButtonType.Primary" ShowFirstLast PreviousText="" NextText="" />
+                    </div>
+                </div>
+
+                <div class="mobile">
+                    <div class="flex-col aic">
+                        <p class="muted">@SelectedRecordCount()</p>
+                        <Pagination State="@paging" OnPageChange="HandlePaging" ActiveType="Sysinfocus.AspNetCore.Components.ButtonType.Primary" ShowFirstLast PreviousText="" NextText="" />
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <p>Loading...</p>
+        }
+    </div>
+</section>
+
+@code {
+    private List<VW_Faq> data = new();
+    private Faq_Listing List_Faq = new();
+
+    private IEnumerable<VW_Faq>? pagedData;
+    private bool isAllChecked;
+    private SortModel _sortModel = new() { Header = "ID", IsAscending = true };
+    private PaginationState paging = new() { CurrentPage = 1, TotalRecords = 0, PageSize = 5 };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            if (appstate.IsLoggedIn)
+            {
+                var apiClient = RestService.For<IRestfulApi>(httpClienthelper.HttpClient);
+                var response = await apiClient.GetAllFaq(List_Faq);
+
+                if (response?.Data?.Success == true)
+                {
+                    data = response.Data.Data.DataList ?? new List<VW_Faq>();
+                    paging.TotalRecords = data.Count;
+                    pagedData = data.Take(paging.PageSize);
+                }
+                else
+                {
+                    ToastService.ShowToast("Failure", "Unable to load FAQs", "e-toast-danger");
+                }
+            }
+            else
+            {
+                ToastService.ShowToast("Unauthorized", "User is not logged in", "e-toast-warning");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowToast("Error", $"An error occurred: {ex.Message}", "e-toast-danger");
+        }
+    }
+
+    private void NavigateToEditPage(Guid id)
+    {
+        NavigationManager.NavigateTo($"/faqmasterdata/faq/{id.ToString()}");
+    }
+
+    private string SelectedRecordCount()
+    {
+        int count = data.Count(a => a.Selected);
+        if (count == 0) return $"Showing {pagedData?.Count()} / {data?.Count()} records with none selected.";
+        else if (count == 1) return $"Showing {pagedData?.Count()} / {data?.Count()} records with {count} selected.";
+        return $"Showing {pagedData?.Count()} / {data?.Count()} records with {count} selected.";
+    }
+
+    private async Task HandleSelect(VW_Faq item)
+    {
+        item.Selected = !item.Selected;
+        if (!item.Selected) isAllChecked = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleSelectAll(bool status)
+    {
+        isAllChecked = status;
+        data.ForEach(d => d.Selected = status);
+    }
+
+    private async Task HandleDelete(VW_Faq dataItem)
+    {
+        data.Remove(dataItem);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleSorting(SortModel sortModel)
+    {
+        if (data is null) return;
+
+        data = (sortModel.Header.ToLower(), sortModel.IsAscending) switch
+        {
+            ("id", true) => data.OrderBy(a => a.Id).ToList(),
+            ("id", false) => data.OrderByDescending(a => a.Id).ToList(),
+            ("question", true) => data.OrderBy(a => a.Question).ToList(),
+            ("question", false) => data.OrderByDescending(a => a.Question).ToList(),
+            ("answer", true) => data.OrderBy(a => a.Answer).ToList(),
+            ("answer", false) => data.OrderByDescending(a => a.Answer).ToList(),
+            (_, _) => data
+        };
+
+        paging.CurrentPage = 1;
+        HandlePaging();
+    }
+
+    private void HandlePaging()
+    {
+        var skip = (paging.CurrentPage - 1) * paging.PageSize;
+        pagedData = data.Skip(skip).Take(paging.PageSize);
+    }
+}

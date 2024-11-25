@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.0" />
+    <PackageReference Include="Refit" Version="8.0.0" />
+    <PackageReference Include="Syncfusion.Blazor.CircularGauge" Version="27.2.2" />
+    <PackageReference Include="Syncfusion.Blazor.DataForm" Version="27.2.2" />
+    <PackageReference Include="Syncfusion.Blazor.Grid" Version="27.2.2" />
+    <PackageReference Include="Syncfusion.Blazor.Inputs" Version="27.2.2" />
+    <PackageReference Include="Syncfusion.Blazor.Layouts" Version="27.2.2" />
+    <PackageReference Include="Syncfusion.Blazor.Navigations" Version="27.2.2" />
+    <PackageReference Include="Syncfusion.Blazor.Notifications" Version="27.2.2" />
+    <PackageReference Include="Syncfusion.Blazor.RichTextEditor" Version="27.2.2" />
+    <PackageReference Include="Syncfusion.Blazor.Spinner" Version="27.2.2" />
+    <PackageReference Include="Syncfusion.Blazor.SplitButtons" Version="27.2.2" />
+    <PackageReference Include="Syncfusion.Blazor.Themes" Version="27.2.2" />
+    <PackageReference Include="Syncfusion.Pdf.Net.Core" Version="27.2.3" />
+    <PackageReference Include="Sysinfocus.AspNetCore.Components" Version="0.0.1.9" />
+  </ItemGroup>
+
+</Project>

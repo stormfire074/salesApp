@@ -1,0 +1,457 @@
+﻿@page "/login"
+@using Refit
+@using SalesApp.Shared.APIs.DTOs
+@using SalesApp.Shared.Layout
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Inputs
+@using Microsoft.AspNetCore.Components.Forms
+@using SalesApp.Shared.APIs.Contracts
+@using SalesApp.Shared.APIs.Static
+<SfToast ID="toast_default" @ref="ToastObj" Content="@ToastContent" Timeout="5000" Icon="e-meeting">
+    <ToastPosition X="@ToastPosition"></ToastPosition>
+</SfToast>
+
+<div class="login-page">
+    <!-- Left Section -->
+    <div class="branding">
+        <LogoComponent Width="200" Height="50" CssClass="custom-logo" Color="white" Style="margin: 10px;" />
+        <p class="slogan">Where passion drives Innovation</p>
+        <p class="sub-slogan">
+            Welcome to Axelliant's Technical Support Center. Experiencing an issue? We're here to resolve it quickly and efficiently. Submit your support tickets, track progress, and trust us to handle the technical challenges, so you can keep moving forward with confidence.
+        </p>
+    </div>
+
+    <!-- Right Section -->
+    <div class="login-form">
+        <div class="login-container">
+            <h2 class="header">Login Into Sales App</h2>
+            <p class="subtext">Enter your login details below.</p>
+            <EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+                <DataAnnotationsValidator />
+                <div class="form-fields">
+                    <SfTextBox Created="AddIcon" @ref=@TextBoxObj CssClass="rounded-input" Placeholder="Username" @bind-Value="loginModel.Username"/>
+
+                    <div class="password-container">
+                        <SfTextBox @ref="PasswordObj" CssClass="rounded-input" Placeholder="Password" @bind-Value="loginModel.Password" Type="@passwordType" />
+                        <button type="button" class="toggle-password" @onclick="TogglePasswordVisibility">
+                            <i class="@passwordToggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+
+                <!-- Remember Me and Forgot Password -->
+                <div class="extras">
+                    <SfCheckBox Label="Remember me" CssClass="checkbox e-custom" @bind-Checked="isRememberMe" />
+                    <a href="#" class="forgot-password">Forgot password?</a>
+                </div>
+
+                <!-- Login and Agent Buttons -->
+                <div class="buttons">
+                    <SfButton CssClass="login-button" IsPrimary="true" Content="Log In" Disabled="@isLoading" />
+                    <SfButton CssClass="agent-button" IsPrimary="false" Content="Sign In as Agent" Disabled="@isLoading" OnClick="SetAgentLogin" />
+                </div>
+
+                <!-- Sign Up Link -->
+                <p class="signup">
+                    Don't have an account? <a href="#" class="signup-link">Sign Up</a>
+                </p>
+            </EditForm>
+
+        </div>
+
+    </div>
+</div>
+<style>
+
+    /* Global Styling to Apply Poppins Everywhere */
+    body, .login-page, .sf-button, .sf-checkbox label {
+    font-family: 'Poppins', sans-serif; /* Set Poppins as the default font */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    }
+
+    .password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    }
+
+    .toggle-password {
+    position: absolute;
+    right: 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: black; /* Light gray for toggle icon */
+    font-size: 15px;
+    outline: none;
+    }
+    /* Login Page Styling */
+    .login-page {
+    display: flex;
+    height: 100vh;
+    background-color: #f5f5f5;
+    flex-direction: row; /* Default layout for larger screens */
+    }
+
+    .branding {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #00579A;
+    color: white;
+    padding: 2rem;
+    text-align: center;
+    }
+
+    .branding .logo {
+    max-width: 300px;
+    }
+
+    .branding .slogan {
+    margin-top: 1rem;
+    font-size: 18px;
+    }
+
+    .sub-slogan {
+    margin-left: 9%;
+    margin-right: 9%;
+    }
+
+    .login-form {
+    flex: 1;
+    background-color: white;
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    }
+
+    .login-form .header {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    }
+
+    .login-form .subtext {
+    color: gray;
+    margin-bottom: 2rem;
+    }
+
+    /* Form Fields Styling */
+    .form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    }
+
+    /* Rounded Input Styling */
+    .rounded-input {
+    border-radius: 25px !important; /* Rounded corners */
+    border: 1px solid #d3d3d3 !important; /* Light gray border */
+    padding: 10px 15px !important; /* Inner padding for space */
+    height: 50px !important; /* Consistent height */
+    font-size: 16px !important; /* Font size */
+    }
+
+    /* Fix Placeholder Text Alignment */
+    .rounded-input::placeholder {
+    font-size: 16px;
+    color: #a0a0a0; /* Light gray placeholder color */
+    line-height: 1.5; /* Ensure proper alignment */
+    }
+
+    /* Prefix and Suffix Icons */
+    .input-icon {
+    color: #a0a0a0; /* Light gray color for icons */
+    font-size: 20px; /* Icon size */
+    }
+
+
+
+    .extras {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+    }
+
+    .extras .sf-checkbox label {
+    font-size: 16px;
+    color: #4a4a4a; /* Dark gray */
+    }
+
+    .extras .forgot-password {
+    color: #00579A;
+    text-decoration: none;
+    font-weight: 600; /* Bold text */
+    font-size: 16px;
+    }
+
+    /* Buttons */
+    .buttons .login-button,
+    .buttons .agent-button {
+    width: 100%;
+    margin-bottom: 1rem;
+    border-radius: 50px;
+    padding: 0.8rem;
+    font-size: 16px !important; /* Font size for buttons */
+    font-family: 'Poppins', sans-serif !important; /* Apply Poppins to buttons */
+    }
+
+    /* Login Button */
+    .buttons .login-button {
+    background-color: #00579A;
+    color: white;
+    border: none;
+    }
+
+    /* Agent Button */
+    .buttons .agent-button {
+    border: 1px solid #00579A;
+    color: #00579A;
+    background: white;
+    }
+
+    .signup {
+    text-align: center;
+    margin-top: 1rem;
+    }
+
+    .signup .signup-link {
+    color: #00579A;
+    text-decoration: none;
+    font-weight: bold;
+    }
+
+    /* Responsive Styling */
+    @@media screen and (max-width: 768px) {
+    .login-container{
+    margin-top:20%;
+    }
+    .login-page
+
+    {
+    flex-direction: column; /* Stack branding and login form vertically */
+    height: auto;
+    }
+
+    .branding {
+    padding: 1.5rem;
+    }
+
+    .branding .logo {
+    max-width: 200px; /* Smaller logo for mobile */
+    }
+
+    .branding .slogan {
+    text-align: center;
+    font-size: 16px;
+    }
+
+    .sub-slogan {
+    display: none; /* Hide sub-slogan for smaller screens */
+    }
+
+    .login-form {
+
+    padding: 2rem; /* Reduce padding on smaller screens */
+    }
+
+    .login-form .header {
+    text-align: center;
+    font-size: 20px; /* Smaller font for the header */
+    }
+
+    .login-form .subtext {
+    text-align: center;
+    font-size: 14px; /* Smaller font for subtext */
+    }
+
+    .rounded-input {
+    padding: 6px 15px !important;
+    height: 45px !important; /* Reduce input height */
+    font-size: 14px !important; /* Reduce input font size */
+    }
+
+    .rounded-input::placeholder {
+    font-size: 14px; /* Reduce placeholder text size */
+    }
+
+    .extras .sf-checkbox label {
+    font-size: 14px; /* Smaller font for "Remember Me" */
+    }
+
+    .extras .forgot-password {
+    font-size: 14px; /* Smaller font for "Forgot Password" */
+    }
+
+    .buttons .login-button,
+    .buttons .agent-button {
+    font-size: 14px !important; /* Smaller font size for buttons */
+    padding: 0.6rem; /* Reduce button padding */
+    }
+
+    }
+
+    @@media screen and (max-width: 480px) {
+    .login-container {
+    margin-top: 20%;
+    }
+
+    .login-form .header {
+    text-align: center;
+    }
+
+    .login-form .subtext {
+    text-align: center;
+    }
+    .branding .logo
+
+    {
+    max-width: 150px; /* Even smaller logo for extra small screens */
+    }
+
+    .branding .slogan {
+
+    font-size: 14px; /* Smaller slogan text */
+    }
+
+    .login-form {
+    padding: 1.5rem; /* Further reduce padding */
+    }
+
+    .form-fields {
+    gap: 15px; /* Reduce spacing between inputs */
+    }
+
+    .rounded-input {
+    padding: 4px 15px !important;
+    height: 40px !important; /* Even smaller input height */
+    font-size: 12px !important; /* Smaller font for inputs */
+    }
+
+    .rounded-input::placeholder {
+    font-size: 12px; /* Smaller placeholder text size */
+    }
+
+    .buttons .login-button,
+    .buttons .agent-button {
+    font-size: 12px !important; /* Smaller font size for buttons */
+    padding: 0.5rem; /* Smaller padding for buttons */
+    }
+
+    .signup .signup-link {
+    font-size: 14px;
+    }
+
+    }
+</style>
+
+@code {
+    private InputType passwordType = InputType.Password;
+    private string passwordToggleIcon = "fa fa-eye-slash";
+    private string ToastPosition = "Right";
+    private string ToastContent = "";
+    SfTextBox TextBoxObj { get; set; }
+    SfTextBox PasswordObj { get; set; }
+    SfToast ToastObj;
+
+
+    private LoginModel loginModel = new LoginModel() { Username = "muzammil.irfan@axelliant.com", Password = "P@ssw0rd" };
+    private bool isRememberMe = false;
+    private bool isAgentLogin = false;
+    private bool isLoading = false;
+    private async void AddEyeIcon()
+    {
+        if (PasswordObj != null)
+        {
+            //Add icon to the TextBox
+            await PasswordObj.AddIconAsync("append", "fa fa-eye-slash input-icon");
+        }
+    }
+    private async void AddIcon()
+    {
+        if (TextBoxObj != null)
+        {
+            //Add icon to the TextBox
+            await TextBoxObj.AddIconAsync("prepend", "fa fa-envelope input-icon");
+        }
+    }
+
+
+    private void TogglePasswordVisibility()
+    {
+        if (passwordType == InputType.Password)
+        {
+            passwordType = InputType.Text;
+            passwordToggleIcon = "fa fa-eye";
+        }
+        else
+        {
+            passwordType = InputType.Password;
+            passwordToggleIcon = "fa fa-eye-slash";
+        }
+    }
+
+    private void SetAgentLogin()
+    {
+        isAgentLogin = true;
+    }
+
+    private TokenRequest token = new();
+
+    private async Task HandleLogin()
+    {
+        try
+        {
+            isLoading = true;
+
+            var apiClient = RestService.For<IRestfulApi>(httpClienthelper.HttpClient);
+            token.Username = loginModel.Username;
+            token.Password = loginModel.Password;
+            var items = await apiClient.Login(token);
+
+            if (items.Data.Success)
+            {
+
+                // Update AppState
+                appstate.IsLoggedIn = true;
+                appstate.Token = items.Data.Data;
+
+                // Show success toast
+                ToastService.ShowToast("Success", "Login Succesful!", "e-success");
+
+                // Navigate to dashboard
+                NavigationManager.NavigateTo("/dashboard");
+            }
+            else
+            {
+                ToastService.ShowToast("Failure", "Login Failed", "e-toast-danger");
+
+
+            }
+
+            isLoading = false;
+        }
+        catch(Exception ex){
+
+        }
+        
+
+     
+    }
+
+
+    public class LoginModel
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
+    }
+}

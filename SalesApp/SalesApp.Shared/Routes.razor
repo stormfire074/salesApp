@@ -1,0 +1,94 @@
+﻿@if (isLoadingStartup)
+{
+    <LoadingOverlay IsLoading="@isLoadingStartup"
+                    CssClass="@GetOverlayCssClass()"
+                    Type="SpinnerType.Fluent" /> <!-- Show overlay during initial load -->
+}
+else
+{
+    <Router AppAssembly="typeof(Layout.MainLayout).Assembly">
+        <Found Context="routeData">
+            @if (appstate.IsLoggedIn)
+            {
+                <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+            }
+            else
+            {
+                <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.LoginPageLayout)" />
+            }
+            <FocusOnNavigate RouteData="routeData" Selector="h1" />
+        </Found>
+    </Router>
+}
+
+@code {
+    private bool isLoadingStartup = true; // Handles splash screen during startup
+    private bool isNavigating = false;   // Handles loading indicator during navigation
+    private IDisposable? registration;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            registration =
+                NavigationManager.RegisterLocationChangingHandler(OnLocationChanging);
+        }
+    }
+
+    private ValueTask OnLocationChanging(LocationChangingContext context)
+    {
+        if (appstate.IsLoggedIn && context.TargetLocation.Contains("/login"))
+        {
+            context.PreventNavigation();
+            //NavigationManager.NavigateTo("/dashboard", true); // Redirect to a safe page (e.g., dashboard)
+
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
+    public void Dispose() => registration?.Dispose();
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Simulate an initial loading process (e.g., API call, configuration setup)
+            await Task.Delay(2000);
+            isLoadingStartup = false;
+
+            // Trigger UI update after the state change
+            StateHasChanged();
+        }
+    }
+
+    // private async Task HandleNavigation(NavigationContext context)
+    // {
+    //     isNavigating = true; // Activate loading indicator during navigation
+    //     StateHasChanged();
+
+    //     try
+    //     {
+    //         // Prevent navigation to login page if the user is logged in
+    //         if (appstate.IsLoggedIn && context.Path.Contains("login", StringComparison.OrdinalIgnoreCase))
+    //         {
+    //             //context.PreventNavigation(); // Prevent the navigation
+
+    //             NavigationManager.NavigateTo("/dashboard", true); // Redirect to a safe page (e.g., dashboard)
+    //             return;
+    //         }
+
+    //         // Add custom navigation logic if needed
+    //         await Task.Delay(300); // Simulate navigation delay
+    //     }
+    //     finally
+    //     {
+    //         isNavigating = false; // Deactivate loading indicator
+    //         StateHasChanged();
+    //     }
+    // }
+
+    private string GetOverlayCssClass()
+    {
+        return FormFactor.IsAndroid ? "none" : string.Empty;
+    }
+}

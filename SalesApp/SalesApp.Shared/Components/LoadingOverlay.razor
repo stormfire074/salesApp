@@ -1,0 +1,43 @@
+﻿@if (IsLoading)
+{
+    <div>
+        <SfSpinner Size="60" CssClass="@cssClass" Type="@type" Visible="true"></SfSpinner>
+    </div>
+}
+
+<style>
+    .highcontrast .e-spinner-pane .e-spinner-inner .e-spin-bootstrap {
+        fill: #ffd939;
+    }
+
+    .highcontrast .e-spinner-pane .e-spinner-inner .e-spin-material,
+    .highcontrast .e-spinner-pane .e-spinner-inner .e-spin-bootstrap,
+    .highcontrast .e-spinner-pane .e-spinner-inner .e-spin-bootstrap4,
+    .highcontrast .e-spinner-pane .e-spinner-inner .e-spin-high-contrast .e-path-arc {
+        stroke: #ffd939;
+    }
+
+    .highcontrast .e-spinner-pane .e-spinner-inner .e-spin-fabric .e-path-circle {
+        stroke: rgba(255, 217, 57, 0.4);
+    }
+</style>
+
+@code {
+    private SpinnerType type = SpinnerType.HighContrast;
+    private string cssClass = "highcontrast";
+
+    [Parameter]
+    public bool IsLoading { get; set; }
+    [Parameter]
+    public string CssClass
+    {
+        get => cssClass;
+        set => cssClass = value;
+    }
+    [Parameter]
+    public SpinnerType Type
+    {
+        get => type;
+        set => type = value;
+    }
+}
