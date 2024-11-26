@@ -1,5 +1,5 @@
 ﻿@page "/shadcn"
-
+@inject IFormFactor _formfactor
 <!-- AppBar Section -->
 <SfAppBar CssClass="custom-appbar" Mode="AppBarMode.Regular">
     <div class="navbar-content">
@@ -44,11 +44,11 @@
         <div class="custom-treeview">
             <SfTreeView TValue="TreeData">
                 <TreeViewFieldsSettings Id="Id"
-                                        Text="Text"
-                                        IconCss="IconCss"
-                                        ParentID="Pid"
-                                        HasChildren="HasChild"
-                                        DataSource="@SidebarData">
+                Text="Text"
+                IconCss="IconCss"
+                ParentID="Pid"
+                HasChildren="HasChild"
+                DataSource="@SidebarData">
                 </TreeViewFieldsSettings>
                 <TreeViewEvents TValue="TreeData" NodeSelected="OnTreeNodeSelected"></TreeViewEvents>
             </SfTreeView>
@@ -62,131 +62,139 @@
 <style>
     /* AppBar Styles */
     .custom-appbar {
-        background-color: #00579A !important;
-        color: white !important;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+    background-color: black !important;
+    color: white !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     }
 
     .navbar-content {
-        display: flex;
-        align-items: center;
-        padding: 10px;
+    display: flex;
+    align-items: center;
+    padding: 10px;
     }
 
     .menu-item {
-        font-size: 24px;
-        cursor: pointer;
-        margin-right: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 10px;
     }
 
     .nav-buttons {
-        display: flex;
-        align-items: center;
-        margin-right: auto;
+    display: flex;
+    align-items: center;
+    margin-right: auto;
     }
 
     .nav-button {
-        background: none;
-        border: none;
-        cursor: pointer;
-        margin: 0 5px;
-        font-size: 20px;
-        color: white;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin: 0 5px;
+    font-size: 20px;
+    color: white;
     }
 
-        .nav-button:hover {
-            color: #ccc;
-        }
+    .nav-button:hover {
+    color: #ccc;
+    }
 
     .navbar-logo {
-        margin-left: auto;
+    margin-left: auto;
     }
 
     /* Drawer Styles */
     .drawer-content {
-        width: 100%;
-        height: auto;
-        padding: 15px;
+    width: 100%;
+    height: auto;
+    padding: 15px;
     }
 
     .drawer-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-direction: row;
-        padding: 15px;
-        border-bottom: 1px solid #ddd; /* Divider for header */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    padding: 15px;
+    border-bottom: 1px solid #ddd; /* Divider for header */
     }
 
     .custom-treeview {
-        margin: 10px 0;
-        font-size: 14px;
-        padding: 0px;
-        flex: 1;
-        max-height: calc(60vh - 150px); /* Ensures content area height is restricted */
-        overflow-y: auto; /* Enables scrolling when content exceeds max-height */
+    margin: 10px 0;
+    font-size: 14px;
+    padding: 0px;
+    flex: 1;
+    max-height: calc(60vh - 150px); /* Ensures content area height is restricted */
+    overflow-y: auto; /* Enables scrolling when content exceeds max-height */
     }
 
     .drawer-footer {
-        display: flex;
-        justify-content: center;
-        padding: 10px;
-        border-top: 1px solid #ddd; /* Divider for footer */
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    border-top: 1px solid #ddd; /* Divider for footer */
     }
 </style>
 
 @code {
     private bool isDrawerOpen = false;
+    private List<TreeData> SidebarData;
+    protected override void OnInitialized() {
 
-    private List<TreeData> SidebarData = new List<TreeData>
+        SidebarData = sidebardata();
+    }
+    private List<TreeData> sidebardata()
     {
-        new TreeData { Id = "1", Text = "Dashboard", IconCss = "fa fa-home", HasChild = true },
-        new TreeData { Id = "1.1", Pid = "1", Text = "Payroll Dashboard", IconCss = "fa fa-calendar-alt text-success", Url = "/dashboard/payrolldashboard" },
+        return new List<TreeData>
+        {
+            new TreeData { Id = "1", Text = "Dashboard", IconCss = "fa fa-home", HasChild = true },
+            new TreeData { Id = "1.1", Pid = "1", Text = "Payroll Dashboard", IconCss = "fa fa-calendar-alt text-success", Url = "/dashboard/payrolldashboard" },
 
-        new TreeData { Id = "2", Text = "Payroll Management", IconCss = "fa fa-calendar-alt", HasChild = true },
-        new TreeData { Id = "2.1", Pid = "2", Text = "Payroll Configuration", IconCss = "fa fa-cogs text-warning", HasChild = true },
-        new TreeData { Id = "2.1.1", Pid = "2.1", Text = "Designations", IconCss = "fa fa-id-badge text-info" },
-        new TreeData { Id = "2.1.2", Pid = "2.1", Text = "Departments", IconCss = "fa fa-building text-secondary" },
-        new TreeData { Id = "2.1.3", Pid = "2.1", Text = "Allowances", IconCss = "fa fa-hand-holding-usd text-success" },
-        new TreeData { Id = "2.1.4", Pid = "2.1", Text = "Deductions", IconCss = "fa fa-minus-circle text-danger" },
-        new TreeData { Id = "2.1.5", Pid = "2.1", Text = "Bonus Policies", IconCss = "fa fa-gift text-warning" },
-        new TreeData { Id = "2.1.6", Pid = "2.1", Text = "Leave Type", IconCss = "fa fa-calendar-alt text-primary" },
-        new TreeData { Id = "2.1.7", Pid = "2.1", Text = "Shifts", IconCss = "fa fa-clock text-muted" },
+            new TreeData { Id = "2", Text = "Payroll Management", IconCss = "fa fa-calendar-alt", HasChild = true },
+            new TreeData { Id = "2.1", Pid = "2", Text = "Payroll Configuration", IconCss = "fa fa-cogs text-warning", HasChild = true },
+            new TreeData { Id = "2.1.1", Pid = "2.1", Text = "Designations", IconCss = "fa fa-id-badge text-info" },
+            new TreeData { Id = "2.1.2", Pid = "2.1", Text = "Departments", IconCss = "fa fa-building text-secondary" },
+            new TreeData { Id = "2.1.3", Pid = "2.1", Text = "Allowances", IconCss = "fa fa-hand-holding-usd text-success" },
+            new TreeData { Id = "2.1.4", Pid = "2.1", Text = "Deductions", IconCss = "fa fa-minus-circle text-danger" },
+            new TreeData { Id = "2.1.5", Pid = "2.1", Text = "Bonus Policies", IconCss = "fa fa-gift text-warning" },
+            new TreeData { Id = "2.1.6", Pid = "2.1", Text = "Leave Type", IconCss = "fa fa-calendar-alt text-primary" },
+            new TreeData { Id = "2.1.7", Pid = "2.1", Text = "Shifts", IconCss = "fa fa-clock text-muted" },
 
-        new TreeData { Id = "2.2", Pid = "2", Text = "Employee Management", IconCss = "fa fa-users text-primary", HasChild = true },
-        new TreeData { Id = "2.2.1", Pid = "2.2", Text = "Employee Profiles", IconCss = "fa fa-user text-info" },
-        new TreeData { Id = "2.2.2", Pid = "2.2", Text = "Salary Details", IconCss = "fa fa-money-bill text-success" },
+            new TreeData { Id = "2.2", Pid = "2", Text = "Employee Management", IconCss = "fa fa-users text-primary", HasChild = true },
+            new TreeData { Id = "2.2.1", Pid = "2.2", Text = "Employee Profiles", IconCss = "fa fa-user text-info" },
+            new TreeData { Id = "2.2.2", Pid = "2.2", Text = "Salary Details", IconCss = "fa fa-money-bill text-success" },
 
-        new TreeData { Id = "2.3", Pid = "2", Text = "Payroll Processing", IconCss = "fa fa-cogs text-warning", HasChild = true },
-        new TreeData { Id = "2.3.1", Pid = "2.3", Text = "Salary Calculation", IconCss = "fa fa-calculator text-info" },
-        new TreeData { Id = "2.3.2", Pid = "2.3", Text = "Deductions & Benefits", IconCss = "fa fa-minus text-danger" },
-        new TreeData { Id = "2.3.3", Pid = "2.3", Text = "Payslip Generation", IconCss = "fa fa-file-invoice-dollar text-success" },
+            new TreeData { Id = "2.3", Pid = "2", Text = "Payroll Processing", IconCss = "fa fa-cogs text-warning", HasChild = true },
+            new TreeData { Id = "2.3.1", Pid = "2.3", Text = "Salary Calculation", IconCss = "fa fa-calculator text-info" },
+            new TreeData { Id = "2.3.2", Pid = "2.3", Text = "Deductions & Benefits", IconCss = "fa fa-minus text-danger" },
+            new TreeData { Id = "2.3.3", Pid = "2.3", Text = "Payslip Generation", IconCss = "fa fa-file-invoice-dollar text-success" },
 
-        new TreeData { Id = "2.4", Pid = "2", Text = "Tax Management", IconCss = "fa fa-balance-scale text-secondary", HasChild = true },
-        new TreeData { Id = "2.4.1", Pid = "2.4", Text = "Tax Deductions", IconCss = "fa fa-percent text-danger" },
-        new TreeData { Id = "2.4.2", Pid = "2.4", Text = "Compliance Reports", IconCss = "fa fa-file-alt text-muted" },
+            new TreeData { Id = "2.4", Pid = "2", Text = "Tax Management", IconCss = "fa fa-balance-scale text-secondary", HasChild = true },
+            new TreeData { Id = "2.4.1", Pid = "2.4", Text = "Tax Deductions", IconCss = "fa fa-percent text-danger" },
+            new TreeData { Id = "2.4.2", Pid = "2.4", Text = "Compliance Reports", IconCss = "fa fa-file-alt text-muted" },
 
-        new TreeData { Id = "2.5", Pid = "2", Text = "Payment", IconCss = "fa fa-credit-card text-primary", HasChild = true },
-        new TreeData { Id = "2.5.1", Pid = "2.5", Text = "Bank Transfers", IconCss = "fa fa-university text-success" },
-        new TreeData { Id = "2.5.2", Pid = "2.5", Text = "Payment History", IconCss = "fa fa-history text-info" },
+            new TreeData { Id = "2.5", Pid = "2", Text = "Payment", IconCss = "fa fa-credit-card text-primary", HasChild = true },
+            new TreeData { Id = "2.5.1", Pid = "2.5", Text = "Bank Transfers", IconCss = "fa fa-university text-success" },
+            new TreeData { Id = "2.5.2", Pid = "2.5", Text = "Payment History", IconCss = "fa fa-history text-info" },
 
-        new TreeData { Id = "3", Text = "FAQ Master Data", IconCss = "fa fa-question", HasChild = true },
-        new TreeData { Id = "3.1", Pid = "3", Text = "Categories", IconCss = "fa fa-cogs text-warning" , Url = "/faqmasterdata/categories"},
-        new TreeData { Id = "3.2", Pid = "3", Text = "FAQs", IconCss = "fa fa-question-circle", Url = "/faqmasterdata/faqs"},
-        new TreeData { Id = "3.3", Pid = "3", Text = "FAQsPage1", IconCss = "fa fa-question-circle", Url = "/faqmaster"},
-        new TreeData { Id = "3.4", Pid = "3", Text = "FAQsPage2", IconCss = "fa fa-question-circle"},
+            new TreeData { Id = "3", Text = "Item Master Data", IconCss = "fa fa-question", HasChild = true },
+            new TreeData { Id = "3.1", Pid = "3", Text = "Items", IconCss = "fa fa-question-circle",useResponsiveForm=FormFactor.Web?false:true, Url = "/faqmasterdata/faqs"},
+            new TreeData { Id = "3.2", Pid = "3", Text = "ItemsVertical", IconCss = "fa fa-question-circle", Url = "/faqmasterdata/faqs-vertial"},
+            // new TreeData { Id = "3.4", Pid = "3", Text = "FAQsPage2", IconCss = "fa fa-question-circle"},
 
 
-        new TreeData { Id = "4", Text = "Shadcn", IconCss = "fa fa-cogs" ,Url="/shadcn"},
-        new TreeData { Id = "5", Text = "Settings", IconCss = "fa fa-cogs" },
-        new TreeData { Id = "6", Text = "Logout", IconCss = "fa fa-sign-out-alt", Url = "/login" }
+            new TreeData { Id = "4", Text = "Shadcn", IconCss = "fa fa-cogs" ,Url="/shadcn"},
+            new TreeData { Id = "5", Text = "Settings", IconCss = "fa fa-cogs" },
+            new TreeData { Id = "6", Text = "Logout", IconCss = "fa fa-sign-out-alt", Url = "/login" }
 
-    };
+        };
+
+    }
 
     private void OnTreeNodeSelected(NodeSelectEventArgs args)
     {
+        var test= FormFactor.Web;
         var selectedItem = SidebarData.FirstOrDefault(item => item.Text == args.NodeData.Text);
         if (selectedItem != null && !string.IsNullOrEmpty(selectedItem.Url))
         {
@@ -209,8 +217,26 @@
         public string Id { get; set; }
         public string Pid { get; set; }
         public string Text { get; set; }
-        public string Url { get; set; }
         public string IconCss { get; set; }
         public bool HasChild { get; set; }
+        public bool useResponsiveForm { get; set; }
+
+        private string _url;
+        public string Url
+        {
+            get
+            {
+                if (useResponsiveForm && !string.IsNullOrEmpty(_url) && !_url.EndsWith("-mobile"))
+                {
+                    return $"{_url}-mobile";
+                }
+                return _url;
+            }
+            set
+            {
+                _url = value;
+            }
+        }
     }
+
 }

@@ -58,7 +58,7 @@
 
                 <!-- Login and Agent Buttons -->
                 <div class="buttons">
-                    <SfButton CssClass="login-button" IsPrimary="true" Content="Log In" Disabled="@isLoading" />
+                    <Button Class="buttons login-button" Type="Sysinfocus.AspNetCore.Components.ButtonType.Primary" Text="Log In" OnClick="HandleLogin" Disabled="@isLoading" />
                 </div>
 
                 <!-- Sign Up Link -->
@@ -71,7 +71,12 @@
 </div>
 
 <style>
-
+    .e-btn.e-primary:hover, .e-css.e-btn.e-primary:hover {
+    background: black;
+    border-color: black;
+    box-shadow: none;
+    color: #fff;
+    }
     /* Global Styling to Apply Poppins Everywhere */
     body, .login-page, .sf-button, .sf-checkbox label {
     font-family: 'Poppins', sans-serif; /* Set Poppins as the default font */
@@ -117,7 +122,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: #00579A;
+    background-color: black;
     color: white;
     padding: 2rem;
     text-align: center;
@@ -203,16 +208,31 @@
     }
 
     .extras .forgot-password {
-    color: #00579A;
+    color: black;
     text-decoration: none;
     font-weight: 600; /* Bold text */
     font-size: 16px;
     }
 
+    .login-button {
+        width: 100% !important;
+        margin-bottom: 1rem;
+        border-radius: 50px;
+        padding: 0.8rem;
+        font-size: 16px;
+        background-color: black;
+        color: white;
+        border: none;
+        text-align: center; /* Ensures the text is centered horizontally */
+        display: flex; /* Makes the button a flex container */
+        justify-content: center; /* Centers content horizontally */
+        align-items: center; /* Centers content vertically */
+        font-family: 'Poppins', sans-serif; /* Ensure consistent font */
+    }
     /* Buttons */
     .buttons .login-button,
     .buttons .agent-button {
-    width: 100%;
+    width: 100% !important;
     margin-bottom: 1rem;
     border-radius: 50px;
     padding: 0.8rem;
@@ -222,15 +242,15 @@
 
     /* Login Button */
     .buttons .login-button {
-    background-color: #00579A;
+    background-color: black;
     color: white;
     border: none;
     }
 
     /* Agent Button */
     .buttons .agent-button {
-    border: 1px solid #00579A;
-    color: #00579A;
+    border: 1px solid black;
+    color: black;
     background: white;
     }
 
@@ -240,7 +260,7 @@
     }
 
     .signup .signup-link {
-    color: #00579A;
+    color: black;
     text-decoration: none;
     font-weight: bold;
     }
@@ -389,7 +409,7 @@
     {
         try
         {
-            var apiClient = RestService.For<IRestfulApi>(httpClienthelper.HttpClient);
+            var apiClient = RestService.For<IRestfulApi>(httpClienthelper.HttpClient??new HttpClient());
             var response = await apiClient.GetAllSapDatabases(new ListRequest<SAPDatabasesModel>());
 
             if (response != null && response.Entity != null)
@@ -488,6 +508,9 @@
         catch (Exception ex)
         {
             ToastService.ShowToast("Error", "An error occurred during login", "e-toast-danger");
+        }
+        finally{
+            isLoading = false;
         }
     }
 

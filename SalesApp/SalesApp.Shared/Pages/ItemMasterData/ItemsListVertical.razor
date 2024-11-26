@@ -1,54 +1,49 @@
-@page "/faqmasterdata/faqs"
+﻿@page "/faqmasterdata/faqs-mobile"
+@inject DataService<APIs.DTOs.ItemsModel> itemDataService
 
-<section class="flex-col">
+
+<section class="mobile-grid">
     <div class="flex-col">
-       
+
         @if (pagedData is not null)
         {
             <div style="padding:10px;">
-                <h2>Items Stock Data</h2>
+                <h2 style="margin-top: 5%; text-align: center;">
+                    Items Stock Data
+                </h2>
 
-                <div style="margin-bottom: 10px; display: inline-flex; justify-content: flex-end; align-items: center;">
-                    <Input type="text" placeholder="Search..." @bind-Value="@searchQuery" Style="width: 300px; margin-right: 10px;" />
-                    <Button Class="primary" OnClick="ApplySearch" Style="display: flex; align-items: center;">
+                <div style="margin-bottom: 10px; display: flex; justify-content: center; align-items: center;">
+                    <Input type="text" placeholder="Search..." @bind-Value="@searchQuery" Class="input-search" />
+                    <Button Class="primary btn-search" OnClick="ApplySearch">
                         <Icon Name="search" Size="18px" Color="white" />
                     </Button>
                 </div>
-                <DataTable Items="@pagedData" TItem="ItemsModel" Height="calc(100vh - 190px)" ShowVerticalBorder ShowSelectAll OnSelectAll="x => HandleSelectAll(x)">
-                    <DataColumns>
-                        <DataTableColumn Freeze="0px" Width="40px" Style="z-index: 2">
-                            <Template>
-                                <Checkbox Checked="@context.Selected" OnClick="@(() => HandleSelect(@context))" />
-                            </Template>
-                        </DataTableColumn>
-                        <DataTableColumn Freeze="10px" Property="d => d.ItemCode" Header="Actions" Width="100px" Align="Alignment.Center">
-                            <Template>
-                                <div class="flex ai-c">
-                                    <Icon Name="edit" Tooltip="Edit" Size="18px" Color="royalblue" OnClick="() => NavigateToEditPage(context.ItemCode)" />
-                                </div>
-                            </Template>
-                        </DataTableColumn>
-                        <DataTableColumn Property="d => d.ItemCode" Style="width: fit-content" Header="ItemCode" Align="Alignment.Right" SortOn="@_sortModel" OnSort="HandleSorting" />
-                        <DataTableColumn Property="d => d.ItemName" Style="width: fit-content" Header="ItemName" Align="Alignment.Left" SortOn="@_sortModel" OnSort="HandleSorting" />
-                        <DataTableColumn Property="d => d.CodeBars ?? string.Empty" Style="width: fit-content" Header="CodeBars" Align="Alignment.Left" OnSort="HandleSorting" />
-                        <DataTableColumn Property="d => d.SalePrice ?? string.Empty" Style="width: fit-content" Header="SalePrice" Align="Alignment.Left" OnSort="HandleSorting" />
-                    </DataColumns>
-                </DataTable>
 
-                <div class="desktop">
-                    <div class="flex jcsb aic">
-                        <p class="muted">@SelectedRecordCount()</p>
-                        <Pagination State="@paging" OnPageChange="HandlePaging" ActiveType="Sysinfocus.AspNetCore.Components.ButtonType.Primary" ShowFirstLast PreviousText="" NextText="" />
-                    </div>
+                <div class="items-grid">
+                    @foreach (var item in pagedData)
+                    {
+                        <div class="item-card">
+                            <div class="flex ai-c">
+                                <Checkbox Checked="@item.Selected" OnClick="@(() => HandleSelect(item))" />
+                                <Icon Name="edit" Tooltip="Edit" Size="18px" Color="royalblue" OnClick="() => OpenModal(item.ItemCode)" />
+                            </div>
+                            <p><strong>ItemCode:</strong> @item.ItemCode</p>
+                            <p><strong>ItemName:</strong> @item.ItemName</p>
+                            <p><strong>CodeBars:</strong> @item.CodeBars</p>
+                            <p><strong>SalePrice:</strong> @item.SalePrice</p>
+                        </div>
+                    }
                 </div>
 
-                <div class="mobile">
-                    <div class="flex-col aic">
-                        <p class="muted">@SelectedRecordCount()</p>
-                        <Pagination State="@paging" OnPageChange="HandlePaging" ActiveType="Sysinfocus.AspNetCore.Components.ButtonType.Primary" ShowFirstLast PreviousText="" NextText="" />
-                    </div>
+                <div style="padding:10px;">
+                    <Pagination State="@paging" OnPageChange="HandlePaging" ActiveType="Sysinfocus.AspNetCore.Components.ButtonType.Primary" ShowFirstLast PreviousText="" NextText="" />
                 </div>
             </div>
+            @if (!string.IsNullOrEmpty(selectedItemCode))
+            {
+                <AddEditItems ItemCode="@selectedItemCode" OnClose="CloseModal" Visible="isModalOpen" />
+
+            }
         }
         else
         {
@@ -56,11 +51,50 @@
         }
     </div>
 </section>
+
 <style>
-    .sbc-input {
-        flex-direction: row !important;
-        justify-content: space-between !important;
-        width: 100% !important;
+    .mobile-grid {
+        padding: 10px;
+    }
+
+    .input-search {
+        width: 80%;
+        margin-right: 10px;
+        padding: 8px;
+        font-size: 16px;
+    }
+
+    .btn-search {
+        padding: 10px 20px;
+    }
+
+    .items-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .item-card {
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .item-card p {
+        margin: 0;
+        font-size: 14px;
+    }
+
+    @@media (min-width: 768px) {
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
     }
 </style>
 @code {
@@ -69,10 +103,22 @@
 
     private IEnumerable<ItemsModel>? pagedData;
     private bool isAllChecked;
-    private SortModel _sortModel = new() { Header = "ID", IsAscending = true };
-    private PaginationState paging = new() { CurrentPage = 1, TotalRecords = 0, PageSize = 50 };
+    private SortModel _sortModel = new() { Header = "ItemCode", IsAscending = true };
+    private PaginationState paging = new() { CurrentPage = 1, TotalRecords = 0, PageSize = 10 };
     private string searchQuery = string.Empty;
+    private bool isModalOpen = false;
+    private string selectedItemCode;
 
+    private void OpenModal(string itemCode)
+    {
+        selectedItemCode = itemCode;
+        isModalOpen = true;
+    }
+
+    private void CloseModal()
+    {
+        isModalOpen = false;
+    }
     protected override async Task OnParametersSetAsync()
     {
         try
@@ -85,6 +131,7 @@
                 if (response.Error == null)
                 {
                     data = response.Entity ?? new List<ItemsModel>();
+                    itemDataService.Data = data;
                     paging.TotalRecords = data.Count;
                     pagedData = data.Take(paging.PageSize);
                 }
@@ -122,9 +169,9 @@
         }
     }
 
-    private void NavigateToEditPage(string id)
+    private void NavigateToEditPage(string itemcode)
     {
-        NavigationManager.NavigateTo($"/faqmasterdata/faq/{id.ToString()}");
+        NavigationManager.NavigateTo($"/faqmasterdata/faq/{itemcode.ToString()}");
     }
 
     private string SelectedRecordCount()
@@ -178,3 +225,4 @@
         var test = pagedData.Where(x => string.IsNullOrEmpty(x.CodeBars) || string.IsNullOrEmpty(x.SalePrice)).ToList();
     }
 }
+

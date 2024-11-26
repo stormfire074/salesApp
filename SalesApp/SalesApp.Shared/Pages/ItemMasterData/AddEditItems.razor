@@ -1,0 +1,281 @@
+@inject DataService<ItemsModel> itemsDataService
+
+<Dialog Show="@Visible" Width="100%" OnClose="CloseModal" Class="responsive-dialog">
+    <Header>
+        <div class="header-container">
+            <h2>Item Details</h2>
+        </div>
+        <div class="action-buttons">
+            <Button Class="primary" Icon="save" OnClick="SaveDetails" />
+            <Button Class="danger" Icon="delete" OnClick="DeleteDetails" />
+            <Button Class="close-button" Type="Sysinfocus.AspNetCore.Components.ButtonType.Icon" Icon="close" OnClick="CloseModal" />
+        </div>
+    </Header>
+
+    <Content>
+        <div class="content-container">
+            <!-- General Details Section -->
+            <section>
+                <h3>General Details</h3>
+                <Separator />
+                <div class="form-container">
+                    @foreach (var field in GeneralFields)
+                    {
+                        <div class="form-group">
+                            <label for="@field.Label">@field.Label</label>
+                            <Input Id="@field.Label" Type="text" TItem="string" Value="@field.Value" Placeholder="@($"Enter {field.Label}")" />
+                        </div>
+                    }
+                </div>
+            </section>
+
+            <!-- Stock Details Section -->
+            <section>
+                <h3>Stock Details</h3>
+                <Separator />
+                <SfAccordion style="margin-top:5px;">
+                    <AccordionItems>
+                        @if (groupedStock != null && groupedStock.Any())
+                        {
+                            @foreach (var group in groupedStock)
+                            {
+                                <Syncfusion.Blazor.Navigations.AccordionItem Header="@group.Key">
+                                    <ContentTemplate>
+                                        <section class="flex-col">
+                                            <div class="flex-col">
+                                                <Table>
+                                                    <TableHeader>
+                                                        <tr>
+                                                            <th style="min-width: 100px">Warehouse Code</th>
+                                                            <th style="width: 300px">Warehouse Name</th>
+                                                            <th style="width: 300px" class="right">On Hand Stock</th>
+                                                        </tr>
+                                                    </TableHeader>
+                                                    <TableBody>
+                                                        @foreach (var stock in group)
+                                                        {
+                                                            <tr>
+                                                                <td style="font-weight: 500">@stock.WhsCode</td>
+                                                                <td>@stock.WHName</td>
+                                                                <td class="right">@stock.OnHand</td>
+                                                            </tr>
+                                                        }
+                                                    </TableBody>
+                                                    <TableFooter>
+                                                        <tr>
+                                                            <th>Total</th>
+                                                            <th></th>
+                                                            <th class="right">@group.Sum(g => Convert.ToDouble(g.OnHand))</th>
+                                                        </tr>
+                                                    </TableFooter>
+                                                </Table>
+                                            </div>
+                                        </section>
+                                    </ContentTemplate>
+                                </Syncfusion.Blazor.Navigations.AccordionItem>
+                            }
+                        }
+                        else
+                        {
+                            <Syncfusion.Blazor.Navigations.AccordionItem Header="No Data Available" Content="No stock data is currently available." />
+                        }
+                    </AccordionItems>
+                </SfAccordion>
+            </section>
+
+            <!-- Price Details Section -->
+            <section>
+                <h3>Price Details</h3>
+                <Separator />
+                <div class="form-container">
+                    @foreach (var field in PriceFields)
+                    {
+                        <div class="form-group">
+                            <label for="@field.Label">@field.Label</label>
+                            <Input Id="@field.Label" Type="text" TItem="string" Value="@field.Value" Placeholder="@($"Enter {field.Label}")" />
+                        </div>
+                    }
+                </div>
+            </section>
+        </div>
+    </Content>
+    <Footer></Footer>
+</Dialog>
+
+<style>
+    button.primary, button.danger {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 18px;
+    }
+
+    .sbc-dialog-header {
+        margin-top: 50px !important;
+    }
+
+    .responsive-dialog {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+    }
+
+    .action-buttons {
+        margin-left: auto;
+        display: flex;
+        gap: 10px;
+    }
+
+    .content-container {
+        flex: 1;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+        padding: 10px;
+    }
+
+    .form-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .form-group {
+        flex: 1 1 calc(33.333% - 20px);
+        min-width: 200px;
+    }
+
+    section {
+        margin-bottom: 20px;
+    }
+
+    h3 {
+        margin-bottom: 10px;
+    }
+</style>
+
+
+@code {
+    [Parameter] public string ItemCode { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public bool Visible { get; set; }
+
+    private bool showDetails = true;
+    private bool isLoading = true;
+    private List<FormField> GeneralFields=new ();
+    private List<FormField> PriceFields=new();
+    private List<WarehouseWiseStock> Stock = new();
+    private ItemsModel itemDetails = new();
+    private IEnumerable<IGrouping<string, WarehouseWiseStock>> groupedStock;
+
+    
+    private void CloseModal()
+    {
+        showDetails = false;
+        OnClose.InvokeAsync();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+
+        itemDetails = itemsDataService.Data.FirstOrDefault(x => x.ItemCode == ItemCode);
+
+        if (appstate.IsLoggedIn)
+        {
+            var apiClient = RestService.For<IRestfulApi>(httpClienthelper.HttpClient);
+
+            // Separate API calls
+            var inStockResponse = await apiClient.InStock(new { Entity = new { ItemCode }, DBName = appstate.DatabaseName, UserName = appstate.Username });
+            foreach (var item in inStockResponse.Entity)
+            {
+                item.BreakageType = nameof(apiClient.InStock);
+                Stock.Add(item);
+            }
+
+            var displayWHResponse = await apiClient.DisplayWH(new { Entity = new { ItemCode }, DBName = appstate.DatabaseName, UserName = appstate.Username });
+            foreach (var item in displayWHResponse.Entity)
+            {
+                item.BreakageType = nameof(apiClient.DisplayWH);
+                Stock.Add(item);
+            }
+
+            var otherWHResponse = await apiClient.OtherWH(new { Entity = new { ItemCode }, DBName = appstate.DatabaseName, UserName = appstate.Username });
+            foreach (var item in otherWHResponse.Entity)
+            {
+                item.BreakageType = nameof(apiClient.OtherWH);
+                Stock.Add(item);
+            }
+
+            var breakageWHStockResponse = await apiClient.BreakageWHStock(new { Entity = new { ItemCode }, DBName = appstate.DatabaseName, UserName = appstate.Username });
+            foreach (var item in breakageWHStockResponse.Entity)
+            {
+                item.BreakageType = nameof(apiClient.BreakageWHStock);
+                Stock.Add(item);
+            }
+
+            groupedStock = Stock.GroupBy(s => s.BreakageType);
+        }
+
+        GeneralFields = new List<FormField>
+        {
+            new("Item Code", itemDetails.ItemCode),
+            new("Item Name", itemDetails.ItemName),
+            new("Barcode", itemDetails.CodeBars),
+            new("Bcd Code", itemDetails.BcdCode),
+            new("Bcd Code 2", itemDetails.BcdCode2),
+            new("Group", itemDetails.Grp),
+            new("Status", itemDetails.Status)
+        };
+
+        PriceFields = new List<FormField>
+        {
+            new("Tag Price", itemDetails.Tag_Price),
+            new("Sale Price", itemDetails.SalePrice),
+            new("DIS LFT", itemDetails.DIS_LFT),
+            new("DIS LHR 291 MB", itemDetails.DIS_LHR_291_MB),
+            new("DIS CLGR", itemDetails.DIS_CLGR),
+            new("DIS GUJ", itemDetails.DIS_GUJ),
+            new("DIS ISB", itemDetails.DIS_ISB),
+            new("DIS KHI", itemDetails.DIS_KHI),
+            new("DIS LHR", itemDetails.DIS_LHR),
+            new("DIS MON 58MB", itemDetails.DIS_MON_58MB)
+        };
+
+        isLoading = false;
+    }
+
+    private async Task NavigateBack()
+    {
+        showDetails = false;
+        NavigationManager.NavigateTo("/faqmasterdata/faqs" + (FormFactor.Web ? "" : "-mobile"));
+    }
+
+    private async Task SaveDetails()
+    {
+        if (GeneralFields.Concat(PriceFields).Any(f => string.IsNullOrWhiteSpace(f.Value)))
+        {
+            ToastService.ShowToast("Error", "All fields are required.", "e-toast-danger");
+            return;
+        }
+
+        ToastService.ShowToast("Success", "Details saved successfully.", "e-toast-success");
+    }
+
+    private async Task DeleteDetails()
+    {
+        ToastService.ShowToast("Success", "Item deleted successfully.", "e-toast-danger");
+    }
+
+
+    private record FormField(string Label, string Value);
+}

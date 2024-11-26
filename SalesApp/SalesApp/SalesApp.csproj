@@ -88,6 +88,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="network_security_config.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <MauiAsset Include="Resources\xml\network_security_config.xml" />
+    <MauiAsset Include="xml\network_security_config.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />

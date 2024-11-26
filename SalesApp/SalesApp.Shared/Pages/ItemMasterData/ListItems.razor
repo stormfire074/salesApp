@@ -1,0 +1,206 @@
+@page "/faqmasterdata/faqs"
+@inject DataService<APIs.DTOs.ItemsModel> itemDataService
+
+<section class="flex-col">
+    <div class="flex-col">
+
+        @if (pagedData is not null)
+        {
+            <div style="padding:10px 20px;">
+                <h2 style="margin-top: 5%;text-align: center;">
+                    Items Stock Data
+                </h2>
+
+                <div style="margin-bottom: 10px; display: flex; justify-content: center; align-items: center;">
+                    <Input type="text" placeholder="Search..." @bind-Value="@searchQuery" Class="input-search" />
+                    <Button Class="primary btn-search" OnClick="ApplySearch">
+                        <Icon Name="search" Size="18px" Color="white" />
+                    </Button>
+                </div>
+                <DataTable Items="@pagedData" TItem="ItemsModel" Height="calc(100vh - 190px)" ShowVerticalBorder ShowSelectAll OnSelectAll="x => HandleSelectAll(x)">
+                    <DataColumns>
+                        <DataTableColumn Freeze="0px" Width="40px" Style="z-index: 2">
+                            <Template>
+                                <Checkbox Checked="@context.Selected" OnClick="@(() => HandleSelect(@context))" />
+                            </Template>
+                        </DataTableColumn>
+                        <DataTableColumn Freeze="10px" Property="d => d.ItemCode" Header="Actions" Width="100px" Align="Alignment.Center">
+                            <Template>
+                                <div class="flex ai-c">
+                                    <Icon Name="edit" Tooltip="Edit" Size="18px" Color="royalblue" OnClick="() => OpenModal(context.ItemCode)" />
+                                </div>
+                            </Template>
+                        </DataTableColumn>
+                        <DataTableColumn Property="d => d.ItemCode" Style="width: fit-content" Header="ItemCode" Align="Alignment.Right" SortOn="@_sortModel" OnSort="HandleSorting" />
+                        <DataTableColumn Property="d => d.ItemName" Style="width: fit-content" Header="ItemName" Align="Alignment.Left" SortOn="@_sortModel" OnSort="HandleSorting" />
+                        <DataTableColumn Property="d => d.CodeBars ?? string.Empty" Style="width: fit-content" Header="CodeBars" Align="Alignment.Left" OnSort="HandleSorting" />
+                        <DataTableColumn Property="d => d.SalePrice ?? string.Empty" Style="width: fit-content" Header="SalePrice" Align="Alignment.Left" OnSort="HandleSorting" />
+                    </DataColumns>
+                </DataTable>
+
+               <div style="padding:10px">
+
+                    <div class="desktop">
+                        <div class="flex jcsb aic">
+                            <p class="muted">@SelectedRecordCount()</p>
+                            <Pagination State="@paging" OnPageChange="HandlePaging" ActiveType="Sysinfocus.AspNetCore.Components.ButtonType.Primary" ShowFirstLast PreviousText="" NextText="" />
+                        </div>
+                    </div>
+
+                    <div class="mobile">
+                        <div class="flex-col aic">
+                            <p class="muted">@SelectedRecordCount()</p>
+                            <Pagination State="@paging" OnPageChange="HandlePaging" ActiveType="Sysinfocus.AspNetCore.Components.ButtonType.Primary" ShowFirstLast PreviousText="" NextText="" />
+                        </div>
+                    </div>
+               </div>
+            </div>
+        }
+        else
+        {
+            <p>Loading...</p>
+        }
+    </div>
+    @if (!string.IsNullOrEmpty(selectedItemCode))
+    {
+        <AddEditItems ItemCode="@selectedItemCode" OnClose="CloseModal" Visible="isModalOpen" />
+
+    }
+
+</section>
+<style>
+    .sbc-input {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    }
+</style>
+@code {
+    private bool isModalOpen = false;
+    private string selectedItemCode;
+
+    private void OpenModal(string itemCode)
+    {
+        selectedItemCode = itemCode;
+        isModalOpen = true;
+    }
+
+    private void CloseModal()
+    {
+        isModalOpen = false;
+    }
+    private List<ItemsModel> data = new();
+    private ItemsModel List_Items = new();
+
+    private IEnumerable<ItemsModel>? pagedData;
+    private bool isAllChecked;
+    private SortModel _sortModel = new() { Header = "ItemCode", IsAscending = true };
+    private PaginationState paging = new() { CurrentPage = 1, TotalRecords = 0, PageSize = 10 };
+    private string searchQuery = string.Empty;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            if (appstate.IsLoggedIn)
+            {
+                var apiClient = RestService.For<IRestfulApi>(httpClienthelper.HttpClient);
+                var response = await apiClient.ItemsList(new ListRequest<ItemsModel>() { DBName = appstate.DatabaseName, UserName = appstate.Username });
+
+                if (response.Error == null)
+                {
+                    data = response.Entity ?? new List<ItemsModel>();
+                    itemDataService.Data = data;
+                    paging.TotalRecords = data.Count;
+                    pagedData = data.Take(paging.PageSize);
+                }
+                else
+                {
+                    ToastService.ShowToast("Failure", "Unable to load FAQs", "e-toast-danger");
+                }
+            }
+            else
+            {
+                ToastService.ShowToast("Unauthorized", "User is not logged in", "e-toast-warning");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowToast("Error", $"An error occurred: {ex.Message}", "e-toast-danger");
+        }
+    }
+
+    private void ApplySearch()
+    {
+        if (string.IsNullOrWhiteSpace(searchQuery))
+        {
+            pagedData = data.Take(paging.PageSize);
+        }
+        else
+        {
+            var filteredData = data.Where(d =>
+                (d.ItemCode?.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (d.ItemName?.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (d.CodeBars?.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ?? false)).ToList();
+
+            paging.TotalRecords = filteredData.Count;
+            pagedData = filteredData.Take(paging.PageSize);
+        }
+    }
+
+    private void NavigateToEditPage(string itemcode)
+    {
+        NavigationManager.NavigateTo($"/faqmasterdata/faq/{itemcode.ToString()}");
+    }
+
+    private string SelectedRecordCount()
+    {
+        int count = data.Count(a => a.Selected);
+        if (count == 0) return $"Showing {pagedData?.Count()} / {data?.Count()} records with none selected.";
+        else if (count == 1) return $"Showing {pagedData?.Count()} / {data?.Count()} records with {count} selected.";
+        return $"Showing {pagedData?.Count()} / {data?.Count()} records with {count} selected.";
+    }
+
+    private async Task HandleSelect(ItemsModel item)
+    {
+        item.Selected = !item.Selected;
+        if (!item.Selected) isAllChecked = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleSelectAll(bool status)
+    {
+        isAllChecked = status;
+        data.ForEach(d => d.Selected = status);
+    }
+
+    private async Task HandleDelete(ItemsModel dataItem)
+    {
+        data.Remove(dataItem);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleSorting(SortModel sortModel)
+    {
+        if (data is null) return;
+
+        data = (sortModel.Header.ToLower(), sortModel.IsAscending) switch
+        {
+            ("itemCode", true) => data.OrderBy(a => a.ItemCode).ToList(),
+            ("itemCode", false) => data.OrderByDescending(a => a.ItemCode).ToList(),
+            ("itemName", true) => data.OrderBy(a => a.ItemName).ToList(),
+            ("itemName", false) => data.OrderByDescending(a => a.ItemName).ToList(),
+            (_, _) => data
+        };
+
+        paging.CurrentPage = 1;
+        HandlePaging();
+    }
+
+    private void HandlePaging()
+    {
+        var skip = (paging.CurrentPage - 1) * paging.PageSize;
+        pagedData = data.Skip(skip).Take(paging.PageSize);
+        var test = pagedData.Where(x => string.IsNullOrEmpty(x.CodeBars) || string.IsNullOrEmpty(x.SalePrice)).ToList();
+    }
+}

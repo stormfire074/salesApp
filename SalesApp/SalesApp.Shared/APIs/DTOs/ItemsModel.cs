@@ -1,6 +1,8 @@
 ﻿using SalesApp.Shared.APIs.DTOs.BaseEntities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -58,4 +60,31 @@ namespace SalesApp.Shared.APIs.DTOs
         public string? OnHand { get; set; }
         public string? UOM { get; set; }
     }
+
+    
+    public class WarehouseWiseStock : BaseWHEntity
+    {
+        public string ItemCode { get; set; }
+
+        public string BreakageType {  get; set; }
+    }
+    public class ItemBooking : BaseEntity
+    {
+        public string ItemCode { get; set; }
+        public string SONo { get; set; }
+        public string CardName { get; set; }
+        public string CardCode { get; set; }
+        public string SODate { get; set; }
+        public string Qty { get; set; }
+        public string Balance { get; set; }
+        public string Location { get; set; }
+    }
+    public class BatchWiseItem : BaseEntity
+    {
+        public string ItemCode { get; set; }
+        public string BatchShade { get; set; }
+        public string Qty { get; set; }
+        public string WH { get; set; }
+    }
+    
 }

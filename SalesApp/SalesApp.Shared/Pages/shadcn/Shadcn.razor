@@ -4,7 +4,20 @@
         <Button Text="Show Dialog" Type="Sysinfocus.AspNetCore.Components.ButtonType.Outline" Class="border" OnClick="() => showAlertDialog = true" />
     </div>
 </section>
-
+@* <div class="flex-col">
+                        <Textarea Label="Question" Info="Enter the question for the FAQ." Placeholder="Type the question here..."
+                                  @bind-Text="currentFaq.ItemName" Error="Question" />
+                    </div>
+                    <div class="flex-col">
+                        <label class="form-label">Answer</label>
+                        <SfRichTextEditor @ref="EditorRef" ID="RT_Editor" Placeholder="Type your answer here..."
+                                          @bind-Value="currentFaq.CodeBars" ShowCharCount="true" AutoSaveOnIdle="true" EnableTabKey="true" EnableXhtml="true">
+                            <RichTextEditorToolbarSettings Items="@Tools"></RichTextEditorToolbarSettings>
+                        </SfRichTextEditor>
+                    </div>
+                    <div class="flex-col">
+                        <Switch Label="Status" Checked="@currentFaq.IsActive" OnClick="OnStatusChanged" />
+                    </div> *@
 <AlertDialog Show="@showAlertDialog">
     <Header>
         Are you absolutely sure?

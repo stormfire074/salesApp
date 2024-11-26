@@ -18,6 +18,7 @@ builder.Services.AddTransient<IHttpClientHelper, HttpClientHelper>();
 builder.Services.AddScoped<NavigationManager>(sp => sp.GetRequiredService<NavigationManager>());
 builder.Services.AddScoped<CustomNavigationManager>();
 builder.Services.AddSingleton<ToastService>();
+builder.Services.AddSingleton(typeof(DataService<>));
 
 builder.Services.AddSysinfocus(LicenseKeyGenerator.GenerateKey(),jsCssFromCDN:true);
 

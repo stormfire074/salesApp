@@ -32,6 +32,7 @@ namespace SalesApp
             builder.Services.AddTransient<IHttpClientHelper, HttpClientHelper>();
             var test = SalesApp.Shared.KeyGenerator.LicenseKeyGenerator.GenerateKey();
             builder.Services.AddSysinfocus(test, jsCssFromCDN:true);
+            builder.Services.AddSingleton(typeof(DataService<>));
 
 
 
