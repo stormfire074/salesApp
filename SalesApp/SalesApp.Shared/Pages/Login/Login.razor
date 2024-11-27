@@ -28,7 +28,7 @@
         <div class="login-container">
             <h2 class="header">Login Into Sales App</h2>
             <p class="subtext">Enter your login details below.</p>
-            <EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+            <EditForm Model="loginModel">
                 <DataAnnotationsValidator />
                 <div class="form-fields">
                     <SfTextBox Created="AddIcon" @ref=@TextBoxObj CssClass="rounded-input" Placeholder="Username" @bind-Value="loginModel.Username"/>
@@ -58,7 +58,7 @@
 
                 <!-- Login and Agent Buttons -->
                 <div class="buttons">
-                    <Button Class="buttons login-button" Type="Sysinfocus.AspNetCore.Components.ButtonType.Primary" Text="Log In" OnClick="HandleLogin" Disabled="@isLoading" />
+                    <Sysinfocus.AspNetCore.Components.Button Class="buttons login-button" Type="Sysinfocus.AspNetCore.Components.ButtonType.Primary" Text="Log In" OnClick="HandleLogin" Disabled="@isLoading" />
                 </div>
 
                 <!-- Sign Up Link -->
@@ -470,6 +470,7 @@
 
     private async Task HandleLogin()
     {
+        var test=(typeof(Radzen.Colors).Assembly.GetName().Version);
         try
         {
             isLoading = true;

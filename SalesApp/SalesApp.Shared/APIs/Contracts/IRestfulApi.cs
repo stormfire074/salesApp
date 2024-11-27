@@ -34,6 +34,12 @@ namespace SalesApp.Shared.APIs.Contracts
 
         [Post("/Services/ItemsController/Api/DisplayWH")]
         Task<ListResponse<WarehouseWiseStock>> DisplayWH(object request);
+        
+        [Post("/Services/ItemsController/Api/ItemBooking")]
+        Task<ListResponse<ItemBooking>> ItemBooking(object request);
+
+        [Post("/Services/ItemsController/Api/BatchWiseItem")]
+        Task<ListResponse<BatchWiseItem>> BatchWiseItem(object request);
 
     }
 }   

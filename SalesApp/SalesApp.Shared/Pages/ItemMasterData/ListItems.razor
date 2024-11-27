@@ -13,28 +13,28 @@
 
                 <div style="margin-bottom: 10px; display: flex; justify-content: center; align-items: center;">
                     <Input type="text" placeholder="Search..." @bind-Value="@searchQuery" Class="input-search" />
-                    <Button Class="primary btn-search" OnClick="ApplySearch">
-                        <Icon Name="search" Size="18px" Color="white" />
-                    </Button>
+                    <Sysinfocus.AspNetCore.Components.Button Class="primary btn-search" OnClick="ApplySearch">
+                        <Sysinfocus.AspNetCore.Components.Icon Name="search" Size="18px" Color="white" />
+                    </Sysinfocus.AspNetCore.Components.Button>
                 </div>
                 <DataTable Items="@pagedData" TItem="ItemsModel" Height="calc(100vh - 190px)" ShowVerticalBorder ShowSelectAll OnSelectAll="x => HandleSelectAll(x)">
                     <DataColumns>
                         <DataTableColumn Freeze="0px" Width="40px" Style="z-index: 2">
                             <Template>
-                                <Checkbox Checked="@context.Selected" OnClick="@(() => HandleSelect(@context))" />
+                                <Sysinfocus.AspNetCore.Components.Checkbox Checked="@context.Selected" OnClick="@(() => HandleSelect(@context))" />
                             </Template>
                         </DataTableColumn>
-                        <DataTableColumn Freeze="10px" Property="d => d.ItemCode" Header="Actions" Width="100px" Align="Alignment.Center">
+                        <DataTableColumn Freeze="10px" Property="d => d.ItemCode" Header="Actions" Width="100px" Align="Sysinfocus.AspNetCore.Components.Alignment.Center">
                             <Template>
                                 <div class="flex ai-c">
-                                    <Icon Name="edit" Tooltip="Edit" Size="18px" Color="royalblue" OnClick="() => OpenModal(context.ItemCode)" />
+                                    <Sysinfocus.AspNetCore.Components.Icon Name="edit" Tooltip="Edit" Size="18px" Color="royalblue" OnClick="() => NavigateToEditPage(context.ItemCode)" />
                                 </div>
                             </Template>
                         </DataTableColumn>
-                        <DataTableColumn Property="d => d.ItemCode" Style="width: fit-content" Header="ItemCode" Align="Alignment.Right" SortOn="@_sortModel" OnSort="HandleSorting" />
-                        <DataTableColumn Property="d => d.ItemName" Style="width: fit-content" Header="ItemName" Align="Alignment.Left" SortOn="@_sortModel" OnSort="HandleSorting" />
-                        <DataTableColumn Property="d => d.CodeBars ?? string.Empty" Style="width: fit-content" Header="CodeBars" Align="Alignment.Left" OnSort="HandleSorting" />
-                        <DataTableColumn Property="d => d.SalePrice ?? string.Empty" Style="width: fit-content" Header="SalePrice" Align="Alignment.Left" OnSort="HandleSorting" />
+                        <DataTableColumn Property="d => d.ItemCode" Style="width: fit-content" Header="ItemCode" Align="Sysinfocus.AspNetCore.Components.Alignment.Right" SortOn="@_sortModel" OnSort="HandleSorting" />
+                        <DataTableColumn Property="d => d.ItemName" Style="width: fit-content" Header="ItemName" Align="Sysinfocus.AspNetCore.Components.Alignment.Left" SortOn="@_sortModel" OnSort="HandleSorting" />
+                        <DataTableColumn Property="d => d.CodeBars ?? string.Empty" Style="width: fit-content" Header="CodeBars" Align="Sysinfocus.AspNetCore.Components.Alignment.Left" OnSort="HandleSorting" />
+                        <DataTableColumn Property="d => d.SalePrice ?? string.Empty" Style="width: fit-content" Header="SalePrice" Align="Sysinfocus.AspNetCore.Components.Alignment.Left" OnSort="HandleSorting" />
                     </DataColumns>
                 </DataTable>
 
@@ -43,14 +43,14 @@
                     <div class="desktop">
                         <div class="flex jcsb aic">
                             <p class="muted">@SelectedRecordCount()</p>
-                            <Pagination State="@paging" OnPageChange="HandlePaging" ActiveType="Sysinfocus.AspNetCore.Components.ButtonType.Primary" ShowFirstLast PreviousText="" NextText="" />
+                            <Sysinfocus.AspNetCore.Components.Pagination State="@paging" OnPageChange="HandlePaging" ActiveType="Sysinfocus.AspNetCore.Components.ButtonType.Primary" ShowFirstLast PreviousText="" NextText="" />
                         </div>
                     </div>
 
                     <div class="mobile">
                         <div class="flex-col aic">
                             <p class="muted">@SelectedRecordCount()</p>
-                            <Pagination State="@paging" OnPageChange="HandlePaging" ActiveType="Sysinfocus.AspNetCore.Components.ButtonType.Primary" ShowFirstLast PreviousText="" NextText="" />
+                            <Sysinfocus.AspNetCore.Components.Pagination State="@paging" OnPageChange="HandlePaging" ActiveType="Sysinfocus.AspNetCore.Components.ButtonType.Primary" ShowFirstLast PreviousText="" NextText="" />
                         </div>
                     </div>
                </div>

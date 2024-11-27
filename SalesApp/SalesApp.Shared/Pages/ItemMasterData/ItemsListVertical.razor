@@ -14,9 +14,9 @@
 
                 <div style="margin-bottom: 10px; display: flex; justify-content: center; align-items: center;">
                     <Input type="text" placeholder="Search..." @bind-Value="@searchQuery" Class="input-search" />
-                    <Button Class="primary btn-search" OnClick="ApplySearch">
-                        <Icon Name="search" Size="18px" Color="white" />
-                    </Button>
+                    <Sysinfocus.AspNetCore.Components.Button Class="primary btn-search" OnClick="ApplySearch">
+                        <Sysinfocus.AspNetCore.Components.Icon Name="search" Size="18px" Color="white" />
+                    </Sysinfocus.AspNetCore.Components.Button>
                 </div>
 
                 <div class="items-grid">
@@ -25,7 +25,7 @@
                         <div class="item-card">
                             <div class="flex ai-c">
                                 <Checkbox Checked="@item.Selected" OnClick="@(() => HandleSelect(item))" />
-                                <Icon Name="edit" Tooltip="Edit" Size="18px" Color="royalblue" OnClick="() => OpenModal(item.ItemCode)" />
+                                <Sysinfocus.AspNetCore.Components.Icon Name="edit" Tooltip="Edit" Size="18px" Color="royalblue" OnClick="() => NavigateToEditPage(item.ItemCode)" />
                             </div>
                             <p><strong>ItemCode:</strong> @item.ItemCode</p>
                             <p><strong>ItemName:</strong> @item.ItemName</p>
@@ -35,19 +35,21 @@
                     }
                 </div>
 
-                <div style="padding:10px;">
-                    <Pagination State="@paging" OnPageChange="HandlePaging" ActiveType="Sysinfocus.AspNetCore.Components.ButtonType.Primary" ShowFirstLast PreviousText="" NextText="" />
-                </div>
+                
             </div>
-            @if (!string.IsNullOrEmpty(selectedItemCode))
-            {
-                <AddEditItems ItemCode="@selectedItemCode" OnClose="CloseModal" Visible="isModalOpen" />
-
-            }
+            <div style="padding:10px;">
+                <Sysinfocus.AspNetCore.Components.Pagination State="@paging" OnPageChange="HandlePaging" ActiveType="Sysinfocus.AspNetCore.Components.ButtonType.Primary" ShowFirstLast PreviousText="" NextText="" />
+            </div>
+            
         }
         else
         {
             <p>Loading...</p>
+        }
+        @if (!string.IsNullOrEmpty(selectedItemCode))
+        {
+            <AddEditItems ItemCode="@selectedItemCode" OnClose="CloseModal" Visible="isModalOpen" />
+
         }
     </div>
 </section>

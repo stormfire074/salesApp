@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
+using Radzen;
 using SalesApp.Services;
 using SalesApp.Shared;
 using SalesApp.Shared.APIs.Static;
@@ -34,6 +35,7 @@ namespace SalesApp
             builder.Services.AddSysinfocus(test, jsCssFromCDN:true);
             builder.Services.AddSingleton(typeof(DataService<>));
 
+            builder.Services.AddRadzenComponents();
 
 
             // Add device-specific services used by the SalesApp.Shared project

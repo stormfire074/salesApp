@@ -1,41 +1,171 @@
-﻿@using Sysinfocus.AspNetCore.Components
+﻿@using Radzen.Blazor
+@using Sysinfocus.AspNetCore.Components
 @inherits LayoutComponentBase
 @inject AppState AppState
 @inject Initialization init
 
+
+@if (FormFactor.Web)
+{
+    <RadzenComponents @rendermode="InteractiveServer" />
+
+}
+else
+{
+    <RadzenComponents />
+
+}
 @if (AppState.IsLoggedIn)
 {
-    <ShadcnDrawer></ShadcnDrawer>
+    <RadzenLayout Style="position: relative; grid-template-areas: 'rz-sidebar rz-header' 'rz-sidebar rz-body'; color: black;">
+        <RadzenHeader Style="background-color: black; color: #ffffff; display: flex; justify-content: space-between; align-items: center; padding: 0 10px;">
+            <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="0">
+                <RadzenSidebarToggle Click="@(() => sidebar1Expanded = !sidebar1Expanded)" Style="color: #ffffff;" />
+            </RadzenStack>
+            <div style="margin-right: 25px; margin-left: auto;">
+                <LogoComponent Width="130" Height="60" CssClass="custom-logo" Color="white" />
+            </div>
+        </RadzenHeader>
+        <RadzenSidebar Responsive="false" @bind-Expanded="@sidebar1Expanded" Style="display: flex; justify-content: space-between; flex-direction: column; background-color: White; color: black;">
+            <RadzenStack AlignItems="Radzen.AlignItems.End" class="rz-p-2">
+                <RadzenButton Icon="west" Variant="Radzen.Variant.Text" ButtonStyle="Radzen.ButtonStyle.Secondary" Click="@(() => sidebar1Expanded = false)" Style="color: black;" />
+            </RadzenStack>
+            <RadzenPanelMenu>
+                @RenderMenuItems(sidebardata())
+               @*<RadzenPanelMenuItem Text="Test" Icon="build" IconColor="black" Style="padding:10px"></RadzenPanelMenuItem>*@
+            </RadzenPanelMenu>
+            <div class="rz-p-4" Style="color: white;">
+                Sidebar
+            </div>
+            <RadzenFooter Style="margin-top: auto; text-align: center;">
+                <div style="width:250px;">
+                    <LogoComponent Width="130" Height="60" CssClass="custom-logo" Color="black" />
+                </div>
+            </RadzenFooter>
+        </RadzenSidebar>
+        <RadzenBody>
+            <div class="rz-p-4" Style="color: black;" @onclick="init.HandleMainLayoutClickEvent">
+                @Body
+            </div>
+        </RadzenBody>
+    </RadzenLayout>
 }
 
-<SfToast @ref="Toast" ShowProgressBar="true" Timeout="3000" Width="300px" Height="auto" >
+<SfToast @ref="Toast" ShowProgressBar="true" Timeout="3000" Width="300px" Height="auto">
     <ToastPosition Y="Top" X="Right"></ToastPosition>
 </SfToast>
 
-<div class="page" @onclick="init.HandleMainLayoutClickEvent">
-    <main>
-        @Body
-    </main>
-</div>
-<div id="blazor-error-ui" data-nosnippet>
+<div id="blazor-error-ui" data-nosnippet style="background-color: #333333; color: #ffffff;">
     An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
+    <a href="." class="reload" style="color: #4caf50;">Reload</a>
+    <span class="dismiss" style="color: #ffffff;">🗙</span>
 </div>
+
 @code {
     private SfToast Toast;
+    bool sidebar1Expanded = false;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await init.InitializeTheme();
+    }
+    private List<TreeData> sidebardata()
+    {
+        return new List<TreeData>
+        {
+            new TreeData { Id = "1", Text = "Dashboard", IconCss = "dashboard", HasChild = true },
+            new TreeData { Id = "1.1", Pid = "1", Text = "Payroll Dashboard", IconCss = "date_range", Url = "/dashboard/payrolldashboard" },
+            new TreeData { Id = "2", Text = "Payroll Management", IconCss = "assignment", HasChild = true },
+            new TreeData { Id = "2.1", Pid = "2", Text = "Payroll Configuration", IconCss = "build", HasChild = true },
+            new TreeData { Id = "2.1.1", Pid = "2.1", Text = "Designations", IconCss = "account_circle" },
+            new TreeData { Id = "2.1.2", Pid = "2.1", Text = "Departments", IconCss = "group_work" },
+            new TreeData { Id = "2.1.3", Pid = "2.1", Text = "Allowances", IconCss = "card_giftcard" },
+            new TreeData { Id = "2.1.4", Pid = "2.1", Text = "Deductions", IconCss = "alarm_off" },
+            new TreeData { Id = "2.1.5", Pid = "2.1", Text = "Bonus Policies", IconCss = "card_giftcard" },
+            new TreeData { Id = "2.1.6", Pid = "2.1", Text = "Leave Type", IconCss = "event" },
+            new TreeData { Id = "2.1.7", Pid = "2.1", Text = "Shifts", IconCss = "schedule" },
+            new TreeData { Id = "2.2", Pid = "2", Text = "Employee Management", IconCss = "people", HasChild = true },
+            new TreeData { Id = "2.2.1", Pid = "2.2", Text = "Employee Profiles", IconCss = "account_box" },
+            new TreeData { Id = "2.2.2", Pid = "2.2", Text = "Salary Details", IconCss = "credit_card" },
+            new TreeData { Id = "2.3", Pid = "2", Text = "Payroll Processing", IconCss = "autorenew", HasChild = true },
+            new TreeData { Id = "2.3.1", Pid = "2.3", Text = "Salary Calculation", IconCss = "assessment" },
+            new TreeData { Id = "2.3.2", Pid = "2.3", Text = "Deductions & Benefits", IconCss = "delete" },
+            new TreeData { Id = "2.3.3", Pid = "2.3", Text = "Payslip Generation", IconCss = "description" },
+            new TreeData { Id = "2.4", Pid = "2", Text = "Tax Management", IconCss = "gavel", HasChild = true },
+            new TreeData { Id = "2.4.1", Pid = "2.4", Text = "Tax Deductions", IconCss = "euro_symbol" },
+            new TreeData { Id = "2.4.2", Pid = "2.4", Text = "Compliance Reports", IconCss = "assignment_turned_in" },
+            new TreeData { Id = "2.5", Pid = "2", Text = "Payment", IconCss = "payment", HasChild = true },
+            new TreeData { Id = "2.5.1", Pid = "2.5", Text = "Bank Transfers", IconCss = "account_balance" },
+            new TreeData { Id = "2.5.2", Pid = "2.5", Text = "Payment History", IconCss = "history" },
+            new TreeData { Id = "3", Text = "Item Master Data", IconCss = "list", HasChild = true },
+            new TreeData { Id = "3.1", Pid = "3", Text = "Items", IconCss = "description",useResponsiveForm=true, Url = "/faqmasterdata/faqs" },
+            new TreeData { Id = "3.2", Pid = "3", Text = "ItemsVertical", IconCss = "description", Url = "/faqmasterdata/faqs-vertial" },
+            new TreeData { Id = "4", Text = "Shadcn", IconCss = "build", Url = "/sidebar-page" },
+            new TreeData { Id = "5", Text = "Blazor Bootstrap", IconCss = "extension", Url = "/samplebootstrap-blazor" },
+            new TreeData { Id = "6", Text = "Settings", IconCss = "settings" },
+            new TreeData { Id = "7", Text = "Logout", IconCss = "exit_to_app", Url = "/login" }
+        };
+
+    }
+
+    private RenderFragment RenderMenuItems(List<TreeData> items, string parentId = null) => builder =>
+    {
+        var index = 0;
+        foreach (var item in items.Where(i => i.Pid == parentId))
+        {
+            builder.OpenComponent<RadzenPanelMenuItem>(index++);
+            builder.AddAttribute(index++, "Text", item.Text);
+            builder.AddAttribute(index++, "Icon", item.IconCss);
+            builder.AddAttribute(index++, "Path", item.Url);
+            builder.AddAttribute(index++,"IconColor","black");
+            builder.AddAttribute(index++, "Style", "padding: 0px 10px 0px 10px;");
+
+          if (items.Any(i => i.Pid == item.Id))
+          {
+              builder.AddAttribute(index++, "ChildContent", RenderMenuItems(items, item.Id));
+          }
+          builder.CloseComponent();
+      }
+    };
+
+    private void NavigateToUrl(string url)
+    {
+        if (!string.IsNullOrEmpty(url))
+        {
+            NavigationManager.NavigateTo(url);
+        }
+    }
+    public class TreeData
+    {
+        public string Id { get; set; }
+        public string Pid { get; set; }
+        public string Text { get; set; }
+        public string IconCss { get; set; }
+        public bool HasChild { get; set; }
+        public bool useResponsiveForm { get; set; }
+
+        private string _url;
+        public string Url
+        {
+            get
+            {
+                if (useResponsiveForm && !string.IsNullOrEmpty(_url) && !_url.EndsWith("-mobile"))
+                {
+                    return $"{_url}-mobile";
+                }
+                return _url;
+            }
+            set
+            {
+                _url = value;
+            }
+        }
+    }
 
     protected override void OnInitialized()
     {
-        //base.OnInitialized();
         ToastService.OnShow += ShowToast;
     }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        // This initializes the theme for the components.
-        // Then you can use init.ToggleTheme() to toggle between light and dark modes.
-        if (firstRender) await init.InitializeTheme();
-    }
+    
     private async void ShowToast(string title, string content, string cssClass = "e-toast-success")
     {
         await Toast.ShowAsync(new ToastModel
@@ -51,3 +181,4 @@
         ToastService.OnShow -= ShowToast;
     }
 }
+

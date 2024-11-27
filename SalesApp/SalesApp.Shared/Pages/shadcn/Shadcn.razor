@@ -1,37 +1,18 @@
-﻿<section class="flex-col">
+﻿@page "/shadcntesting"
+<section class="flex-col">
     <h2>Alert Dialog</h2>
     <div class="flex">
-        <Button Text="Show Dialog" Type="Sysinfocus.AspNetCore.Components.ButtonType.Outline" Class="border" OnClick="() => showAlertDialog = true" />
+        <Sysinfocus.AspNetCore.Components.Button Text="Show Dialog" Type="Sysinfocus.AspNetCore.Components.ButtonType.Outline" Class="border" OnClick="() => showAlertDialog = true" />
     </div>
 </section>
-@* <div class="flex-col">
-                        <Textarea Label="Question" Info="Enter the question for the FAQ." Placeholder="Type the question here..."
-                                  @bind-Text="currentFaq.ItemName" Error="Question" />
-                    </div>
-                    <div class="flex-col">
-                        <label class="form-label">Answer</label>
-                        <SfRichTextEditor @ref="EditorRef" ID="RT_Editor" Placeholder="Type your answer here..."
-                                          @bind-Value="currentFaq.CodeBars" ShowCharCount="true" AutoSaveOnIdle="true" EnableTabKey="true" EnableXhtml="true">
-                            <RichTextEditorToolbarSettings Items="@Tools"></RichTextEditorToolbarSettings>
-                        </SfRichTextEditor>
-                    </div>
-                    <div class="flex-col">
-                        <Switch Label="Status" Checked="@currentFaq.IsActive" OnClick="OnStatusChanged" />
-                    </div> *@
-<AlertDialog Show="@showAlertDialog">
-    <Header>
-        Are you absolutely sure?
-    </Header>
-    <Content>
-        This action cannot be undone. This will permanently delete your account and remove your data from our servers.
-    </Content>
-    <Footer>
-        <Button Text="Cancel" Type="Sysinfocus.AspNetCore.Components.ButtonType.Outline" OnClick="() => showAlertDialog = false" />
-        <Button Text="Continue" OnClick="() => showAlertDialog = false" />
-    </Footer>
-</AlertDialog>
+
+<div class="flex">
+    <Select Items="@fruits" Placeholder="Select a fruit" Width="200px" Display="x => x" TItem="string" SelectedItem="@selectedItem" OnItemSelect="x => selectedItem = x" />
+</div>
 
 @code
 {
+    string[] fruits = ["**Fruits**", "Apple", "Banana", "Blueberry", "Grapes", "Pineapple"];
+    string? selectedItem = "Grapes";
     bool showAlertDialog;
 }

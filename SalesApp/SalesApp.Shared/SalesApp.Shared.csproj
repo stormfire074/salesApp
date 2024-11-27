@@ -7,11 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\bootstrap\**" />
+    <Content Remove="wwwroot\bootstrap\**" />
+    <EmbeddedResource Remove="wwwroot\bootstrap\**" />
+    <None Remove="wwwroot\bootstrap\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <SupportedPlatform Include="browser" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.0" />
+    <PackageReference Include="Radzen.Blazor" Version="5.6.7" />
     <PackageReference Include="Refit" Version="8.0.0" />
     <PackageReference Include="Syncfusion.Blazor.CircularGauge" Version="27.2.2" />
     <PackageReference Include="Syncfusion.Blazor.DataForm" Version="27.2.2" />

@@ -86,5 +86,7 @@ namespace SalesApp.Shared.APIs.DTOs
         public string Qty { get; set; }
         public string WH { get; set; }
     }
+
+
     
 }

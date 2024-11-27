@@ -23,7 +23,7 @@
 </style>
 
 @code {
-    private SpinnerType type = SpinnerType.HighContrast;
+    private Syncfusion.Blazor.Spinner.SpinnerType type = Syncfusion.Blazor.Spinner.SpinnerType.HighContrast;
     private string cssClass = "highcontrast";
 
     [Parameter]
@@ -35,7 +35,7 @@
         set => cssClass = value;
     }
     [Parameter]
-    public SpinnerType Type
+    public Syncfusion.Blazor.Spinner.SpinnerType Type
     {
         get => type;
         set => type = value;

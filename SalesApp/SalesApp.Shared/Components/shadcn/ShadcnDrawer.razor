@@ -36,8 +36,8 @@
     <div class="drawer-content">
         <!-- Drawer Header -->
         <div class="drawer-header">
-            <LogoComponent Width="130" Height="60" CssClass="drawer-logo-image" Color="black" />
-            <Button Icon="close" Type="Sysinfocus.AspNetCore.Components.ButtonType.Icon" Class="border rounded" OnClick="CloseDrawer" />
+            <LogoComponent Width="130" Height="60" CssClass="drawer-logo-image" Color="white" />
+            <Sysinfocus.AspNetCore.Components.Button Icon="close" Type="Sysinfocus.AspNetCore.Components.ButtonType.Icon" Class="border rounded" OnClick="CloseDrawer" />
         </div>
 
         <!-- Sidebar Navigation Tree -->
@@ -45,6 +45,7 @@
             <SfTreeView TValue="TreeData">
                 <TreeViewFieldsSettings Id="Id"
                 Text="Text"
+                
                 IconCss="IconCss"
                 ParentID="Pid"
                 HasChildren="HasChild"
@@ -60,6 +61,7 @@
     </div>
 </Drawer>
 <style>
+   
     /* AppBar Styles */
     .custom-appbar {
     background-color: black !important;
@@ -184,9 +186,10 @@
             // new TreeData { Id = "3.4", Pid = "3", Text = "FAQsPage2", IconCss = "fa fa-question-circle"},
 
 
-            new TreeData { Id = "4", Text = "Shadcn", IconCss = "fa fa-cogs" ,Url="/shadcn"},
-            new TreeData { Id = "5", Text = "Settings", IconCss = "fa fa-cogs" },
-            new TreeData { Id = "6", Text = "Logout", IconCss = "fa fa-sign-out-alt", Url = "/login" }
+            new TreeData { Id = "4", Text = "Shadcn", IconCss = "fa fa-cogs" ,Url="/sidebar-page"},
+            new TreeData { Id = "5", Text = "Blazor Bootstrap", IconCss = "fa fa-cogs" ,Url="/samplebootstrap-blazor"},
+            new TreeData { Id = "6", Text = "Settings", IconCss = "fa fa-cogs" },
+            new TreeData { Id = "7", Text = "Logout", IconCss = "fa fa-sign-out-alt", Url = "/login" }
 
         };
 

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Radzen;
 using SalesApp.Shared;
 using SalesApp.Shared.APIs.Static;
 using SalesApp.Shared.DependencyServices;
@@ -25,6 +26,7 @@ builder.Services.AddSysinfocus(LicenseKeyGenerator.GenerateKey(),jsCssFromCDN:tr
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddRadzenComponents();
 
 // Add device-specific services used by the SalesApp.Shared project
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
